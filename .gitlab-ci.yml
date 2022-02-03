@@ -1,0 +1,22 @@
+image: gitlab.mrt.uni-karlsruhe.de:21443/mrt/misc/mrt_build/mrt_packaging:20.04
+
+before_script:
+  - sudo apt-get install -y xvfb
+  - Xvfb :1 -screen 0 1600x1200x16  &  # virtual display for tkinter
+  - export DISPLAY=:1.0
+  - sudo apt-get install -y python3-tk  # for tkinter
+  - python3 -V  # Print out python version for debugging
+  - sudo pip3 install virtualenv
+  - python3 -m virtualenv venv
+  - source venv/bin/activate
+
+test:
+  script:
+    - python3 -m pip install -e .
+    - pytest
+    - pytest --cov=src --cov-fail-under=80
+
+black:
+  script:
+    - python3 -m pip install black[jupyter]==21.11b1
+    - black --check .
