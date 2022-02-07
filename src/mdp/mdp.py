@@ -124,7 +124,9 @@ class MDP:
         """Return whether a state is a terminal state."""
         return state in self.terminal_states
 
-    def get_transitions_with_probabilities(self, state, action) -> List[Tuple[float, Any]]:
+    def get_transitions_with_probabilities(
+        self, state, action
+    ) -> List[Tuple[float, Any]]:
         if action is None or self.is_terminal(state):
             return [(0.0, state)]
         return self.transition_probabilities[(state, action)]
