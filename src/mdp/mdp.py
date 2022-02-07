@@ -1,5 +1,6 @@
 import numpy as np
 
+from typing import Optional, Any, Dict, Set, List, Union, Tuple
 
 SIMPLE_MDP_DICT = {
     "states": [1, 2],
@@ -54,13 +55,24 @@ HIGHWAY_MDP_DICT = {
 class MDP:
     def __init__(
         self,
-        states: set,
-        actions: set,
-        initial_state,
-        terminal_states: set,
-        transition_probabilities: dict,
-        reward: dict,
+        states: Set[Any],
+        actions: Set[Any],
+        initial_state: Any,
+        terminal_states: Set[Any],
+        transition_probabilities: Dict[Tuple[Any, Any], List[Tuple[float, Any]]],
+        reward: Dict[Any, float],
     ) -> None:
+        """
+        A Markov decision process.
+
+        :param states: Set of states.
+        :param actions: Set of actions.
+        :param initial_state: Initial state.
+        :param terminal_states: Set of terminal states.
+        :param transition_probabilities: Dictionary of transition probabilities,
+            mapping from tuple (state, action) to list of tuples (probability, next state).
+        :param reward: Dictionary of rewards per state, mapping from state to reward.
+        """
         self.states = states
 
         self.actions = actions
@@ -92,21 +104,27 @@ class MDP:
             assert reward[state] is not None
         self.reward = reward
 
-    def get_states(self):
+    def get_states(self) -> Set[Any]:
+        """Get the set of states."""
         return self.states
 
-    def get_actions(self, state):
+    def get_actions(self, state) -> Set[Any]:
+        """Get the set of actions available in a certain state, returns [None] for terminal states."""
         if self.is_terminal(state):
-            return [None]
-        return [a for a in self.actions if (state, a) in self.transition_probabilities]
+            return {None}
+        return set(
+            [a for a in self.actions if (state, a) in self.transition_probabilities]
+        )
 
-    def get_reward(self, state):
+    def get_reward(self, state) -> float:
+        """Get the reward for a specific state."""
         return self.reward[state]
 
-    def is_terminal(self, state):
+    def is_terminal(self, state) -> bool:
+        """Return whether a state is a terminal state."""
         return state in self.terminal_states
 
-    def get_transitions_with_probabilities(self, state, action):
+    def get_transitions_with_probabilities(self, state, action) -> List[Tuple[float, Any]]:
         if action is None or self.is_terminal(state):
             return [(0.0, state)]
         return self.transition_probabilities[(state, action)]
@@ -115,12 +133,25 @@ class MDP:
 class GridMDP(MDP):
     def __init__(
         self,
-        grid: list,
-        initial_state,
-        terminal_states: set,
-        transition_probabilities_per_action: dict,
-        restrict_actions_to_available_states: bool = False,
+        grid: List[List[Union[float, None]]],
+        initial_state: Tuple[int, int],
+        terminal_states: Set[Tuple[int, int]],
+        transition_probabilities_per_action: Dict[
+            Tuple[int, int], List[Tuple[float, Tuple[int, int]]]
+        ],
+        restrict_actions_to_available_states: Optional[bool] = False,
     ) -> None:
+        """
+        A Markov decision process on a grid.
+
+        :param grid: List of lists, containing the rewards of the grid states or None.
+        :param initial_state: Initial state in the grid.
+        :param terminal_states: Set of terminal states in the grid.
+        :param transition_probabilities_per_action: Dictionary of transition probabilities per action,
+            mapping from action to list of tuples (probability, next state).
+        :param restrict_actions_to_available_states: Whether to restrict actions to those that result in valid
+            next states.
+        """
         states = set()
         reward = {}
         grid = grid.copy()
@@ -137,41 +168,18 @@ class GridMDP(MDP):
         transition_probabilities = {}
         for state in states:
             for action in transition_probabilities_per_action.keys():
-                if not restrict_actions_to_available_states:
-                    transition_probabilities[state, action] = [
-                        (
-                            probability,
-                            self.next_state_deterministic(
-                                state, deterministic_action, states
-                            ),
-                        )
-                        for (
-                            probability,
-                            deterministic_action,
-                        ) in transition_probabilities_per_action[action]
-                    ]
-                else:
-                    transition_probability_list = []
-                    none_in_next_states = False
-                    for (
-                        probability,
-                        deterministic_action,
-                    ) in transition_probabilities_per_action[action]:
-                        next_state = self.next_state_deterministic(
-                            state,
-                            deterministic_action,
-                            states,
-                            output_none_if_non_existing_state=True,
-                        )
-                        if next_state is None:
-                            none_in_next_states = True
-                            break
-                        transition_probability_list.append((probability, next_state))
-
-                    if not none_in_next_states:
-                        transition_probabilities[
-                            state, action
-                        ] = transition_probability_list
+                transition_probability_list = self._generate_transition_probability_list(
+                    state=state,
+                    action=action,
+                    restrict_actions_to_available_states=restrict_actions_to_available_states,
+                    states=states,
+                    transition_probabilities_per_action=transition_probabilities_per_action,
+                    next_state_fn=self._next_state_deterministic,
+                )
+                if len(transition_probability_list) > 0:
+                    transition_probabilities[
+                        (state, action)
+                    ] = transition_probability_list
 
         super().__init__(
             states=states,
@@ -183,9 +191,43 @@ class GridMDP(MDP):
         )
 
     @staticmethod
-    def next_state_deterministic(
+    def _generate_transition_probability_list(
+        state,
+        action,
+        restrict_actions_to_available_states,
+        states,
+        transition_probabilities_per_action,
+        next_state_fn,
+    ):
+        """Generate the transition probability list of the grid."""
+        transition_probability_list = []
+        none_in_next_states = False
+        for (
+            probability,
+            deterministic_action,
+        ) in transition_probabilities_per_action[action]:
+            next_state = next_state_fn(
+                state,
+                deterministic_action,
+                states,
+                output_none_if_non_existing_state=restrict_actions_to_available_states,
+            )
+            if next_state is None:
+                none_in_next_states = True
+                break
+            transition_probability_list.append((probability, next_state))
+
+        if not none_in_next_states:
+            return transition_probability_list
+
+        return []
+
+    @staticmethod
+    def _next_state_deterministic(
         state, action, states, output_none_if_non_existing_state=False
     ):
+        """Output the next state given the action in a deterministic setting.
+        Output none if next state not existing in case output_none_if_non_existing_state is True."""
         next_state_candidate = tuple(np.array(state) + np.array(action))
         if next_state_candidate in states:
             return next_state_candidate
@@ -194,7 +236,18 @@ class GridMDP(MDP):
         return state
 
 
-def expected_utility_of_action(mdp: MDP, state, action, utility_of_states):
+def expected_utility_of_action(
+    mdp: MDP, state: Any, action: Any, utility_of_states: Dict[Any, float]
+) -> float:
+    """
+    Compute the expected utility of taking an action in a state.
+
+    :param mdp: The underlying MDP.
+    :param state: The start state.
+    :param action: The action to be taken.
+    :param utility_of_states: The dictionary containing the utility (estimate) of all states.
+    :return: Expected utility
+    """
     return sum(
         p * utility_of_states[next_state]
         for (p, next_state) in mdp.get_transitions_with_probabilities(
@@ -203,21 +256,42 @@ def expected_utility_of_action(mdp: MDP, state, action, utility_of_states):
     )
 
 
-def derive_policy(mdp: MDP, utility):
+def derive_policy(mdp: MDP, utility_of_states: Dict[Any, float]) -> Dict[Any, Any]:
+    """
+    Compute the best policy for an MDP given the utility of the states.
+
+    :param mdp: The underlying MDP.
+    :param utility_of_states: The dictionary containing the utility (estimate) of all states.
+    :return: Policy, i.e. mapping from state to action.
+    """
     pi = {}
     for state in mdp.get_states():
         pi[state] = max(
             mdp.get_actions(state),
             key=lambda action: expected_utility_of_action(
-                mdp=mdp, state=state, action=action, utility_of_states=utility
+                mdp=mdp, state=state, action=action, utility_of_states=utility_of_states
             ),
         )
     return pi
 
 
 def value_iteration(
-    mdp: MDP, epsilon: float, max_iterations: int, return_history: bool = False
-):
+    mdp: MDP,
+    epsilon: float,
+    max_iterations: int,
+    return_history: Optional[bool] = False,
+) -> Union[Dict[Any, float], List[Dict[Any, float]]]:
+    """
+    Derive a utility estimate by means of value iteration.
+
+    :param mdp: The underlying MDP.
+    :param epsilon: Termination criterion:
+        if maximum difference in utility update is below epsilon, the iteration is terminated.
+    :param max_iterations: Maximum number of iterations, if exceeded, RuntimeError is raised.
+    :param return_history: Whether to return the whole history of utilities instead of just the final estimate.
+    :return: The final utility estimate, if return_history is false.
+        The history of utility estimates as list, if return_history is true.
+    """
     utility = {state: 0 for state in mdp.get_states()}
     utility_history = []
     for _ in range(max_iterations):

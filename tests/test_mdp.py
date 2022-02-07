@@ -33,7 +33,7 @@ def test_expected_utility():
 def test_derive_policy():
     mdp = MDP(**SIMPLE_MDP_DICT)
     expected_policy = {1: "A", 2: None}
-    assert expected_policy == derive_policy(mdp=mdp, utility={1: 0.01, 2: 1})
+    assert expected_policy == derive_policy(mdp=mdp, utility_of_states={1: 0.01, 2: 1})
 
 
 def test_value_iteration():

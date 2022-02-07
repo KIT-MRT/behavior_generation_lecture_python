@@ -63,18 +63,18 @@ def expected_utilities_to_tex(mdp: MDP, utility: dict) -> str:
 
 def best_policy_to_tex_arrows(mdp: MDP, utility: dict):
 
-    list = []
-    policy = derive_policy(mdp=mdp, utility=utility)
+    source_dest_list = []
+    policy = derive_policy(mdp=mdp, utility_of_states=utility)
     for s in sorted(mdp.get_states()):
         best_action = policy[s]
         if not best_action:
             continue
         source = tuple(np.array(s) - 0.2 * np.array(best_action) + np.array((0.5, 0.5)))
         dest = tuple(np.array(s) + 0.2 * np.array(best_action) + np.array((0.5, 0.5)))
-        list.append((source, dest))
+        source_dest_list.append((source, dest))
 
     tex_list = []
-    for source, dest in list:
+    for source, dest in source_dest_list:
         tex_list.append(
             r"\draw[->,color=blue] " + str(source) + " -- " + str(dest) + r";"
         )
