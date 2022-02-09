@@ -127,6 +127,7 @@ class MDP:
     def get_transitions_with_probabilities(
         self, state, action
     ) -> List[Tuple[float, Any]]:
+        """Get the list of transitions with their probability, returns [(0.0, state)] for terminal states."""
         if action is None or self.is_terminal(state):
             return [(0.0, state)]
         return self.transition_probabilities[(state, action)]
