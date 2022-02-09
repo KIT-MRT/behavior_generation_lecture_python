@@ -100,7 +100,9 @@ class MDP:
                 assert math.isclose(total_prob, 1), "Probabilities must add to one"
         self.transition_probabilities = transition_probabilities
 
-        assert set(reward.keys()) == set(self.states)
+        assert set(reward.keys()) == set(
+            self.states
+        ), "Rewards must be defined for every state in the set of states"
         for state in self.states:
             assert reward[state] is not None
         self.reward = reward
@@ -180,7 +182,7 @@ class GridMDP(MDP):
                     transition_probabilities_per_action=transition_probabilities_per_action,
                     next_state_fn=self._next_state_deterministic,
                 )
-                if len(transition_probability_list) > 0:
+                if transition_probability_list:
                     transition_probabilities[
                         (state, action)
                     ] = transition_probability_list
@@ -231,7 +233,7 @@ class GridMDP(MDP):
         state, action, states, output_none_if_non_existing_state=False
     ):
         """Output the next state given the action in a deterministic setting.
-        Output none if next state not existing in case output_none_if_non_existing_state is True."""
+        Output None if next state not existing in case output_none_if_non_existing_state is True."""
         next_state_candidate = tuple(np.array(state) + np.array(action))
         if next_state_candidate in states:
             return next_state_candidate
