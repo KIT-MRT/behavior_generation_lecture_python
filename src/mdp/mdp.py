@@ -1,3 +1,4 @@
+import math
 import numpy as np
 
 from typing import Optional, Any, Dict, Set, List, Union, Tuple
@@ -96,7 +97,7 @@ class MDP:
                         next_state in self.states
                     ), f"next_state={next_state} is not in states={states}"
                     total_prob += prob
-                assert abs(total_prob - 1) < 1e-9, "Probabilities must add to one"
+                assert math.isclose(total_prob, 1), "Probabilities must add to one"
         self.transition_probabilities = transition_probabilities
 
         assert set(reward.keys()) == set(self.states)
