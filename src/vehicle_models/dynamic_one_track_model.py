@@ -25,8 +25,8 @@ class DynamicOneTrackModel:
             (self.params.l_h * r - v * np.sin(beta)) / (v * np.cos(beta))
         )
 
-        s_qv = np.sin(alpha_v)
-        s_qh = np.sin(alpha_h)
+        s_qv = np.arctan(alpha_v)
+        s_qh = np.arctan(alpha_h)
 
         F_qv = self.params.A_v * np.sin(
             self.params.B_v * np.arctan(self.params.C_v * s_qv)
