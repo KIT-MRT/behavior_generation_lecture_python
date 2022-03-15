@@ -1,9 +1,22 @@
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import numpy as np
 
+from typing import Dict, List, Set
+
 
 class Node:
-    def __init__(self, name, position, connected_to):
+    def __init__(
+        self, name: str, position: np.ndarray, connected_to: List[str]
+    ) -> None:
+        """
+        Node in a graph for A* computation.
+
+        :param name: Name of the node.
+        :param position: Position of the node (x,y).
+        :param connected_to: List of the names of nodes, that this node is connected to.
+        """
         self.name = name
         self.position = position
         self.connected_to = connected_to
@@ -11,30 +24,58 @@ class Node:
         self.cost_to_come = None
         self.heuristic_cost_to_go = None
 
-    def compute_heuristic_cost_to_go(self, goal_node):
+    def compute_heuristic_cost_to_go(self, goal_node: Node) -> None:
+        """
+        Computes the heuristic cost to go to the goal node based on the distance and assigns it to the node object.
+
+        :param goal_node: The goal node.
+        :return:
+        """
         self.heuristic_cost_to_go = np.linalg.norm(goal_node.position - self.position)
 
-    def total_cost(self):
+    def total_cost(self) -> float:
+        """
+        Computes the expected total cost to reach the goal node as sum of cost to come and heuristic cost to go.
+
+        :return: The expected total cost to reach the goal node.
+        """
         return self.cost_to_come + self.heuristic_cost_to_go
 
 
-def extract_min(node_set, node_dict):
+def extract_min(node_set: Set[str], node_dict: Dict[str, Node]) -> str:
+    """
+    Extract the node with minimal total cost from a set.
+
+    :param node_set: The set of node names to be considered.
+    :param node_dict: The node dict, containing the node information.
+    :return: The name of the node with minimal total cost.
+    """
     min_node = min(node_set, key=lambda x: node_dict[x].total_cost())
     node_set.remove(min_node)
     return min_node
 
 
 class Graph:
-    def __init__(self, nodes_dict) -> None:
+    def __init__(self, nodes_dict: Dict[str, Node]) -> None:
+        """
+        A graph for A* computation.
+
+        :param nodes_dict: The dictionary containing the nodes of the graph.
+        """
         self.nodes_dict = nodes_dict
 
-        self.end_node = None
+        self._end_node = None
 
         fig, ax = plt.subplots()
         self.fig = fig
         self.ax = ax
 
-    def draw_graph(self):
+    def draw_graph(self) -> None:
+        """
+        Draw all nodes and their connections in the graph.
+
+        :return:
+        """
         self.ax.set_xlim([0, 700])
         self.ax.set_ylim([0, 700])
 
@@ -52,8 +93,16 @@ class Graph:
                     color="k",
                 )
 
-    def draw_result(self):
-        current_node = self.end_node
+    def draw_result(self) -> None:
+        """
+        Draw the solution to the shortest path problem.
+
+        :return:
+        """
+        assert (
+            self._end_node
+        ), "End node not defined, run a_star() before drawing the result."
+        current_node = self._end_node
         while self.nodes_dict[current_node].predecessor:
             curr_node = self.nodes_dict[current_node]
             predecessor = curr_node.predecessor
@@ -74,11 +123,15 @@ class Graph:
 
         plt.show()
 
-    def a_star(self, start, end):
+    def a_star(self, start: str, end: str) -> bool:
         """
-        returns False if unsuccessful
+        Compute the shortest path through the graph with the A* algorithm.
+
+        :param start: Name of the start node.
+        :param end: Name of the end node.
+        :return: True if shortest path found, False otherwise.
         """
-        self.end_node = end
+        self._end_node = end
         open_set = set()
         closed_set = set()
         for node in self.nodes_dict.values():
