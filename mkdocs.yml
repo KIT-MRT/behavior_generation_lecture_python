@@ -1,0 +1,39 @@
+# Project information
+site_name: Behavior Generation Lecture Python
+site_url:
+site_author: Organizers of the lecture "Verhaltensgenerierung für Fahrzeuge" at KIT
+site_description: >-
+  Python Code for the Lecture "Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles) at KIT
+
+# Repository
+repo_name: KIT-MRT/behavior_generation_lecture_python
+repo_url: https://github.com/KIT-MRT/behavior_generation_lecture_python
+edit_uri: ""
+
+# Copyright
+copyright: Copyright &copy; 2015 - present Organizers of the lecture "Verhaltensgenerierung für Fahrzeuge" at KIT
+
+# Configuration
+theme:
+  name: material
+
+  # Static files
+  static_templates:
+    - 404.html
+
+  font: false
+
+  # Don't include MkDocs' JavaScript
+  include_search_page: false
+  search_index_only: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.keys
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      check_paths: true
+
+nav:
+  - index.md

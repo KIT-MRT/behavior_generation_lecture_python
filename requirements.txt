@@ -6,3 +6,4 @@ black[jupyter]==21.11b1
 pytest
 pytest-cov>=3.0.0
 python-statemachine
+mkdocs-material
