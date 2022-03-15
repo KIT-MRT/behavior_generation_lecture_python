@@ -1,8 +1,12 @@
-from graph_search.a_star import Node, Graph
+import matplotlib
 import numpy as np
+
+from graph_search.a_star import Node, Graph
 
 
 def test_example_graph():
+    matplotlib.use("Agg")
+
     nodes_list = [
         ["HH", 170, 620, ["H", "B"]],
         ["H", 150, 520, ["B", "L", "F", "HH"]],
