@@ -1,8 +1,9 @@
-import numpy as np
 import warnings
+
+import numpy as np
 from scipy import spatial
 
-import utils.normalize_angle as na
+import behavior_generation_lecture_python.utils.normalize_angle as na
 
 
 def project2curve_with_lookahead(s_c, x_c, y_c, theta_c, kappa_c, l_v, x, y, psi):

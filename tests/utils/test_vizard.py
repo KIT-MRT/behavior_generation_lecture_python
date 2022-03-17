@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-import utils.vizard.vizard as vz
+import behavior_generation_lecture_python.utils.vizard.vizard as vz
 
 
 class FakeButtonPressedEvent:

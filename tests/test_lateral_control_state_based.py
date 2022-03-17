@@ -1,8 +1,8 @@
 import numpy as np
 
-import lateral_control_state_based.lateral_control_state_based as cl
-import utils.generate_reference_curve as ref
-from utils.projection import project2curve
+import behavior_generation_lecture_python.lateral_control_state_based.lateral_control_state_based as cl
+import behavior_generation_lecture_python.utils.generate_reference_curve as ref
+from behavior_generation_lecture_python.utils.projection import project2curve
 
 
 def test_lateral_control_state_based():

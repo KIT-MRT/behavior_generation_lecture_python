@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from utils import generate_reference_curve
+from behavior_generation_lecture_python.utils import generate_reference_curve
 
 
 def test_straight_line():

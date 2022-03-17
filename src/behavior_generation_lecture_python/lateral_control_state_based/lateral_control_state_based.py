@@ -1,8 +1,9 @@
 import numpy as np
 from scipy.integrate import odeint
-import vehicle_models.kinematic_one_track_model as kotm
-import lateral_control_state_based.state_based_controller as con
-import utils.projection as pro
+
+import behavior_generation_lecture_python.lateral_control_state_based.state_based_controller as con
+import behavior_generation_lecture_python.utils.projection as pro
+import behavior_generation_lecture_python.vehicle_models.kinematic_one_track_model as kotm
 
 
 class LateralControlStateBased:

@@ -1,9 +1,9 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-import vehicle_models.model_comparison as cm
-from utils.plot_vehicle import plot_vehicle as pv
-from utils.vizard import vizard as vz
+import behavior_generation_lecture_python.vehicle_models.model_comparison as cm
+from behavior_generation_lecture_python.utils.plot_vehicle import plot_vehicle as pv
+from behavior_generation_lecture_python.utils.vizard import vizard as vz
 
 
 def main():

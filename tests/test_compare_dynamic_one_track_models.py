@@ -1,7 +1,7 @@
-import pytest
 import numpy as np
+import pytest
 
-import vehicle_models.model_comparison as cm
+import behavior_generation_lecture_python.vehicle_models.model_comparison as cm
 
 
 @pytest.mark.parametrize(

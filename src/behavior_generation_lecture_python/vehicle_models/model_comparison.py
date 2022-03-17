@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.integrate import odeint
-import vehicle_models.dynamic_one_track_model as nlotm
-import vehicle_models.dynamic_one_track_model_linearized as lotm
+
+import behavior_generation_lecture_python.vehicle_models.dynamic_one_track_model as nlotm
+import behavior_generation_lecture_python.vehicle_models.dynamic_one_track_model_linearized as lotm
 
 
 class CompareModels:

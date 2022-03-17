@@ -1,7 +1,7 @@
 import math
-import numpy as np
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-from typing import Optional, Any, Dict, Set, List, Union, Tuple
+import numpy as np
 
 SIMPLE_MDP_DICT = {
     "states": [1, 2],

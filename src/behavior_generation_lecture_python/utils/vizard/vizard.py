@@ -1,10 +1,11 @@
+import math
+import warnings
+
+import matplotlib.pyplot as plt
+import matplotlib.widgets
 from matplotlib.animation import FuncAnimation
 from mpl_toolkits.axes_grid1 import Divider, Size
 from mpl_toolkits.axes_grid1.mpl_axes import Axes
-import matplotlib.widgets
-import math
-import matplotlib.pyplot as plt
-import warnings
 
 
 class Vizard(object):

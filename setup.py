@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 # we don't distinguish between the project and environment requirements, for details
 # see https://packaging.python.org/discussions/install-requires-vs-requirements/

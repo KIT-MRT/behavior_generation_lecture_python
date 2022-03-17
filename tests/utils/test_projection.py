@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from utils import projection
+from behavior_generation_lecture_python.utils import projection
 
 
 class SampleCurve:

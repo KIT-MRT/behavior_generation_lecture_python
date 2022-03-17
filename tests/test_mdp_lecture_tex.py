@@ -1,15 +1,15 @@
 import numpy as np
 
-from mdp.mdp import (
-    MDP,
-    GridMDP,
-    expected_utility_of_action,
-    derive_policy,
-    value_iteration,
+from behavior_generation_lecture_python.mdp.mdp import (
     GRID_MDP_DICT,
     HIGHWAY_MDP_DICT,
     LC_RIGHT_ACTION,
+    MDP,
     STAY_IN_LANE_ACTION,
+    GridMDP,
+    derive_policy,
+    expected_utility_of_action,
+    value_iteration,
 )
 
 

@@ -1,10 +1,10 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-import lateral_control_state_based.lateral_control_state_based as cl
-import utils.generate_reference_curve as ref
-from utils.plot_vehicle import plot_vehicle as pv
-from utils.vizard import vizard as vz
+import behavior_generation_lecture_python.lateral_control_state_based.lateral_control_state_based as cl
+import behavior_generation_lecture_python.utils.generate_reference_curve as ref
+from behavior_generation_lecture_python.utils.plot_vehicle import plot_vehicle as pv
+from behavior_generation_lecture_python.utils.vizard import vizard as vz
 
 
 def main():

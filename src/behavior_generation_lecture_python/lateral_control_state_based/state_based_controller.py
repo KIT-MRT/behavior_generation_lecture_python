@@ -1,5 +1,6 @@
 import numpy as np
-import utils.normalize_angle as na
+
+import behavior_generation_lecture_python.utils.normalize_angle as na
 
 
 def feedback_law(d, psi, theta_r, kappa_r):

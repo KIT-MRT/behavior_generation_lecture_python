@@ -1,4 +1,6 @@
-from finite_state_machine import traffic_light_state_machine
+from behavior_generation_lecture_python.finite_state_machine import (
+    traffic_light_state_machine,
+)
 
 if __name__ == "__main__":
     tlsm = traffic_light_state_machine.StateMachine(
