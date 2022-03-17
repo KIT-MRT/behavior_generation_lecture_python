@@ -8,3 +8,7 @@ pytest-cov>=3.0.0
 python-statemachine
 mkdocs-material
 mkdocs-jupyter
+mkdocstrings
+mkdocs-gen-files
+mkdocs-literate-nav
+mkdocs-section-index
