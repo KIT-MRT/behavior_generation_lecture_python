@@ -7,3 +7,4 @@ pytest
 pytest-cov>=3.0.0
 python-statemachine
 mkdocs-material
+mkdocs-jupyter

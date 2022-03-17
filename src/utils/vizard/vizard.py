@@ -33,6 +33,8 @@ class Vizard(object):
 
         self.register_plot(figure=figure, update_func=update_func, time_vec=time_vec)
 
+        self.go_to(1)
+
     class VizardPlot(object):
         """
         Helper class for storing plot fixtures.
