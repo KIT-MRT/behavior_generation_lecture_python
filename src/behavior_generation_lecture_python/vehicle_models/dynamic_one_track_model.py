@@ -28,14 +28,14 @@ class DynamicOneTrackModel:
             (self.params.l_h * r - v * np.sin(beta)) / (v * np.cos(beta))
         )
 
-        s_qv = np.sin(alpha_v)
-        s_qh = np.sin(alpha_h)
-
+        # H. B. Pacejka "Tyre and Vehicle Dynamics"
+        # https://doi.org/10.1016/B978-0-7506-6918-4.X5000-X
+        # eq. 1.6 ("magic tyre formula") for small alpha
         F_qv = self.params.A_v * np.sin(
-            self.params.B_v * np.arctan(self.params.C_v * s_qv)
+            self.params.B_v * np.arctan(self.params.C_v * alpha_v)
         )
         F_qh = self.params.A_h * np.sin(
-            self.params.B_h * np.arctan(self.params.C_h * s_qh)
+            self.params.B_h * np.arctan(self.params.C_h * alpha_h)
         )
 
         r_dot = (
