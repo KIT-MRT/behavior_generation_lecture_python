@@ -35,7 +35,7 @@ def test_buttons_up_down():
 
     button_up_pressed_event = FakeButtonPressedEvent(u"up")
     viz.key_press_event(button_up_pressed_event)
-    assert viz.i == 10, "Animation should be at frame 10 after pressing button 'up'"
+    assert viz.i == 11, "Animation should be at frame 10 after pressing button 'up'"
 
     button_down_pressed_event = FakeButtonPressedEvent(u"down")
     viz.key_press_event(button_down_pressed_event)
