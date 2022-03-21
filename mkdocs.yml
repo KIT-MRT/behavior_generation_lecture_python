@@ -43,7 +43,7 @@ nav:
       - Lateral Control (Riccati): notebooks/lateral_control_riccati_notebook.ipynb
       - Graph Search: notebooks/a_star_notebook.ipynb
       - Decision Making: notebooks/mdp.ipynb
-  - API Documentation: reference/
+  - API Documentation (partial): reference/
 
 plugins:
   - search
