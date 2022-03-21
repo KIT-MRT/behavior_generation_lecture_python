@@ -4,13 +4,16 @@ import behavior_generation_lecture_python.utils.normalize_angle as na
 
 
 def feedback_law(d, psi, theta_r, kappa_r):
-    """
-    Feedback law for the state-based controller
-    :param d: Distance of the vehicle to the reference curve
-    :param psi: Heading of the vehicle
-    :param theta_r: Heading of the reference line
-    :param kappa_r: Curvature of the reference line
-    :return: Steering angle
+    """Feedback law for the state-based controller
+
+    Args:
+        d: Distance of the vehicle to the reference curve
+        psi: Heading of the vehicle
+        theta_r: Heading of the reference line
+        kappa_r: Curvature of the reference line
+
+    Returns:
+        Steering angle
     """
     axis_distance = 2.9680
     k_0 = 0.2

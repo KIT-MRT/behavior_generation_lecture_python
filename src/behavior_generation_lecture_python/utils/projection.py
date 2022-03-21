@@ -22,17 +22,21 @@ def project2curve_with_lookahead(s_c, x_c, y_c, theta_c, kappa_c, l_v, x, y, psi
 
 
 def project2curve(s_c, x_c, y_c, theta_c, kappa_c, x, y):
-    """
-    Project a point onto a curve (defined as a polygonal chain/ sequence of points/ line string)
-    :param s_c: Arc lenght of the curve
-    :param x_c: x-coordinates of the curve points
-    :param y_c: y-coordinates of the curve points
-    :param theta_c: heading at the curve points
-    :param kappa_c: curvature at the curve points
-    :param x: x-coordinates of the point to be projected
-    :param y: y-coordinates of the point to be projected
-    :return: properties of the projected point as list:
-        x-coordinate, y-coordinate, arc length, distance to original point, heading, curvature
+    """Project a point onto a curve (defined as a polygonal chain/ sequence of points/ line string)
+
+    Args:
+        s_c: Arc lenght of the curve
+        x_c: x-coordinates of the curve points
+        y_c: y-coordinates of the curve points
+        theta_c: heading at the curve points
+        kappa_c: curvature at the curve points
+        x: x-coordinates of the point to be projected
+        y: y-coordinates of the point to be projected
+
+    Returns:
+        properties of the projected point as list: x-coordinate,
+        y-coordinate, arc length, distance to original point, heading,
+        curvature
     """
     # Find the closest curve point to [x, y]
     distance, mindex = spatial.KDTree(np.array([x_c, y_c]).transpose()).query([x, y])
@@ -81,16 +85,20 @@ def project2curve(s_c, x_c, y_c, theta_c, kappa_c, x, y):
 
 
 def pseudo_projection(start_index, x, y, x_c, y_c, theta_c):
-    """
-    Project a point onto a segment of a curve (defined as a polygonal chain/ sequence of points/ line string)
-    :param start_index: Start index of the segment to be projected to
-    :param x_c: x-coordinates of the curve points
-    :param y_c: y-coordinates of the curve points
-    :param theta_c: heading at the curve points
-    :param x: x-coordinates of the point to be projected
-    :param y: y-coordinates of the point to be projected
-    :return: properties of the projected point as list:
-        [x-coordinate, y-coordinate], lambda: interpolation scale, sgn: sign of the projection (-1 or 1)
+    """Project a point onto a segment of a curve (defined as a polygonal chain/ sequence of points/ line string)
+
+    Args:
+        start_index: Start index of the segment to be projected to
+        x_c: x-coordinates of the curve points
+        y_c: y-coordinates of the curve points
+        theta_c: heading at the curve points
+        x: x-coordinates of the point to be projected
+        y: y-coordinates of the point to be projected
+
+    Returns:
+        properties of the projected point as list: [x-coordinate,
+        y-coordinate], lambda: interpolation scale, sgn: sign of the
+        projection (-1 or 1)
     """
     p1 = np.array([x_c[start_index], y_c[start_index]])
     p2 = np.array([x_c[start_index + 1], y_c[start_index + 1]])

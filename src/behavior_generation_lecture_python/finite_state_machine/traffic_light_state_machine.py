@@ -10,19 +10,23 @@ class StateMachine:
         self.current_state.run()
 
     def trigger(self, event):
-        """
-        Trigger an event and run the subsequent state
-        :param event: event to be triggered
-        :return: Name of the current state
+        """Trigger an event and run the subsequent state
+
+        Args:
+            event: event to be triggered
+
+        Returns:
+            Name of the current state
         """
         self.current_state = self.current_state.transition(event)
         self.current_state.run()
         return self.get_state_name()
 
     def get_state_name(self):
-        """
-        Return the name of the state as string
-        :return: Name of the state
+        """Return the name of the state as string
+
+        Returns:
+            Name of the state
         """
         return type(self.current_state).__name__
 
@@ -37,10 +41,13 @@ class State(ABC):
         """Abstract run method of the state"""
 
     def transition(self, event):
-        """
-        Transition to the next state based on the event
-        :param event: Event on which the transition is based
-        :return: next state
+        """Transition to the next state based on the event
+
+        Args:
+            event: Event on which the transition is based
+
+        Returns:
+            next state
         """
         print(f"Event '{event}' called")
         if event in self.transition_map:
