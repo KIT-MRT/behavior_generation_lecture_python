@@ -205,7 +205,7 @@ class Vizard(object):
                 text = plot.controls.text_measure
                 text.set_text(
                     "dx:{:.3} dy:{:.3} dist:{:.3}".format(
-                        dx, dy, math.sqrt(dx ** 2 + dy ** 2)
+                        dx, dy, math.sqrt(dx**2 + dy**2)
                     )
                 )
             line.set_data([[x, event.xdata], [y, event.ydata]])

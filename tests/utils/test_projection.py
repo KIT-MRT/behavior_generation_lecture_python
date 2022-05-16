@@ -8,7 +8,7 @@ class SampleCurve:
     def __init__(self):
         self.curve_points_x = [0, 1, 2, 3]
         self.curve_points_y = [0, 0, 1, 3]
-        self.curve_points_s = [0, 1, 1 + np.sqrt(2), 1 + np.sqrt(1 + 2 ** 2)]
+        self.curve_points_s = [0, 1, 1 + np.sqrt(2), 1 + np.sqrt(1 + 2**2)]
         self.curve_points_theta = [0, np.arctan(1), np.arctan(2), np.arctan(2)]
         self.curve_points_kappa_fantasy = [-10, -10, -10, -10]
 
