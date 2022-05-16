@@ -20,5 +20,5 @@ test:
 
 black:
   script:
-    - python3 -m pip install black[jupyter]==21.11b1
+    - python3 -m pip install black[jupyter]==22.3.0
     - black --check .
