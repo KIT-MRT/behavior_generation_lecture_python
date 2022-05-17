@@ -13,12 +13,8 @@ before_script:
 test:
   script:
     - python3 -m pip install -e .
+    - black --check .
     - pytest
     - pytest --cov=src --cov-fail-under=80
     - cp -r notebooks/* docs/notebooks
     - mkdocs build
-
-black:
-  script:
-    - python3 -m pip install black[jupyter]==22.3.0
-    - black --check .
