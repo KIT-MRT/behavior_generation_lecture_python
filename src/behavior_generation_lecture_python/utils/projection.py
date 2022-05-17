@@ -96,8 +96,8 @@ def pseudo_projection(start_index, x, y, x_c, y_c, theta_c):
         y: y-coordinates of the point to be projected
 
     Returns:
-        properties of the projected point as list: [x-coordinate,
-        y-coordinate], lambda: interpolation scale, sgn: sign of the
+        properties of the projected point as list: point ([x-coordinate,
+        y-coordinate]), lambda: interpolation scale, sgn: sign of the
         projection (-1 or 1)
     """
     p1 = np.array([x_c[start_index], y_c[start_index]])
