@@ -1,5 +1,6 @@
-import matplotlib.pyplot as plt
 import math
+
+import matplotlib.pyplot as plt
 
 
 class GraphNode:

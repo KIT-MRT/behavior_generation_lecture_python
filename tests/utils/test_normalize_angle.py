@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from utils.normalize_angle import normalize_angle
+from behavior_generation_lecture_python.utils.normalize_angle import normalize_angle
 
 
 def test_normalize_angle():

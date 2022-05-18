@@ -1,6 +1,6 @@
+import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
-import matplotlib.pyplot as plt
 
 
 def pick_points_from_plot():
@@ -64,7 +64,7 @@ def generate_reference_curve(xx, yy, delta):
 
     # kappa = (x'y'' - y'x'')/(x'² + y'²)^(3/2)
     kappa_curve = (x_prime * y_pprime - y_prime * x_pprime) / (
-        x_prime ** 2 + y_prime ** 2
+        x_prime**2 + y_prime**2
     ) ** (3 / 2)
 
     return {

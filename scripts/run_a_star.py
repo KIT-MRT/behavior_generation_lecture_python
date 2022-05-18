@@ -1,4 +1,4 @@
-from graph_search.a_star import ExampleGraph
+from behavior_generation_lecture_python.graph_search.a_star import ExampleGraph
 
 
 def main():

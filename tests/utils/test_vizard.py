@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-import utils.vizard.vizard as vz
+import behavior_generation_lecture_python.utils.vizard.vizard as vz
 
 
 class FakeButtonPressedEvent:
@@ -33,11 +33,11 @@ def test_buttons_up_down():
     viz = vz.Vizard(figure=fig, update_func=update, time_vec=t)
     plt.show()
 
-    button_up_pressed_event = FakeButtonPressedEvent(u"up")
+    button_up_pressed_event = FakeButtonPressedEvent("up")
     viz.key_press_event(button_up_pressed_event)
     assert viz.i == 11, "Animation should be at frame 10 after pressing button 'up'"
 
-    button_down_pressed_event = FakeButtonPressedEvent(u"down")
+    button_down_pressed_event = FakeButtonPressedEvent("down")
     viz.key_press_event(button_down_pressed_event)
     viz.key_press_event(button_down_pressed_event)
     assert viz.i == 0, "Animation frame should be 0 at least"

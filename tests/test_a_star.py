@@ -1,5 +1,6 @@
-import graph_search.a_star as a_star
 import math
+
+import behavior_generation_lecture_python.graph_search.a_star as a_star
 
 
 class TestNodeClass:

@@ -1,7 +1,8 @@
 import os
+
+import matplotlib as mpl
 import numpy as np
 from matplotlib.patches import Polygon
-import matplotlib as mpl
 
 NP_FILE = os.path.join(os.path.dirname(__file__), "f10.npy")
 geo = np.load(NP_FILE, allow_pickle=True)[()]

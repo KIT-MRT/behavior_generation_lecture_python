@@ -1,7 +1,7 @@
 import math
-import numpy as np
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-from typing import Optional, Any, Dict, Set, List, Union, Tuple
+import numpy as np
 
 SIMPLE_MDP_DICT = {
     "states": [1, 2],
@@ -63,16 +63,18 @@ class MDP:
         transition_probabilities: Dict[Tuple[Any, Any], List[Tuple[float, Any]]],
         reward: Dict[Any, float],
     ) -> None:
-        """
-        A Markov decision process.
+        """A Markov decision process.
 
-        :param states: Set of states.
-        :param actions: Set of actions.
-        :param initial_state: Initial state.
-        :param terminal_states: Set of terminal states.
-        :param transition_probabilities: Dictionary of transition probabilities,
-            mapping from tuple (state, action) to list of tuples (probability, next state).
-        :param reward: Dictionary of rewards per state, mapping from state to reward.
+        Args:
+            states: Set of states.
+            actions: Set of actions.
+            initial_state: Initial state.
+            terminal_states: Set of terminal states.
+            transition_probabilities: Dictionary of transition
+                probabilities, mapping from tuple (state, action) to
+                list of tuples (probability, next state).
+            reward: Dictionary of rewards per state, mapping from state
+                to reward.
         """
         self.states = states
 
@@ -147,16 +149,18 @@ class GridMDP(MDP):
         ],
         restrict_actions_to_available_states: Optional[bool] = False,
     ) -> None:
-        """
-        A Markov decision process on a grid.
+        """A Markov decision process on a grid.
 
-        :param grid: List of lists, containing the rewards of the grid states or None.
-        :param initial_state: Initial state in the grid.
-        :param terminal_states: Set of terminal states in the grid.
-        :param transition_probabilities_per_action: Dictionary of transition probabilities per action,
-            mapping from action to list of tuples (probability, next state).
-        :param restrict_actions_to_available_states: Whether to restrict actions to those that result in valid
-            next states.
+        Args:
+            grid: List of lists, containing the rewards of the grid
+                states or None.
+            initial_state: Initial state in the grid.
+            terminal_states: Set of terminal states in the grid.
+            transition_probabilities_per_action: Dictionary of
+                transition probabilities per action, mapping from action
+                to list of tuples (probability, next state).
+            restrict_actions_to_available_states: Whether to restrict
+                actions to those that result in valid next states.
         """
         states = set()
         reward = {}
@@ -233,7 +237,8 @@ class GridMDP(MDP):
         state, action, states, output_none_if_non_existing_state=False
     ):
         """Output the next state given the action in a deterministic setting.
-        Output None if next state not existing in case output_none_if_non_existing_state is True."""
+        Output None if next state not existing in case output_none_if_non_existing_state is True.
+        """
         next_state_candidate = tuple(np.array(state) + np.array(action))
         if next_state_candidate in states:
             return next_state_candidate
@@ -245,14 +250,17 @@ class GridMDP(MDP):
 def expected_utility_of_action(
     mdp: MDP, state: Any, action: Any, utility_of_states: Dict[Any, float]
 ) -> float:
-    """
-    Compute the expected utility of taking an action in a state.
+    """Compute the expected utility of taking an action in a state.
 
-    :param mdp: The underlying MDP.
-    :param state: The start state.
-    :param action: The action to be taken.
-    :param utility_of_states: The dictionary containing the utility (estimate) of all states.
-    :return: Expected utility
+    Args:
+        mdp: The underlying MDP.
+        state: The start state.
+        action: The action to be taken.
+        utility_of_states: The dictionary containing the utility
+            (estimate) of all states.
+
+    Returns:
+        Expected utility
     """
     return sum(
         p * utility_of_states[next_state]
@@ -263,12 +271,15 @@ def expected_utility_of_action(
 
 
 def derive_policy(mdp: MDP, utility_of_states: Dict[Any, float]) -> Dict[Any, Any]:
-    """
-    Compute the best policy for an MDP given the utility of the states.
+    """Compute the best policy for an MDP given the utility of the states.
 
-    :param mdp: The underlying MDP.
-    :param utility_of_states: The dictionary containing the utility (estimate) of all states.
-    :return: Policy, i.e. mapping from state to action.
+    Args:
+        mdp: The underlying MDP.
+        utility_of_states: The dictionary containing the utility
+            (estimate) of all states.
+
+    Returns:
+        Policy, i.e. mapping from state to action.
     """
     pi = {}
     for state in mdp.get_states():
@@ -287,16 +298,20 @@ def value_iteration(
     max_iterations: int,
     return_history: Optional[bool] = False,
 ) -> Union[Dict[Any, float], List[Dict[Any, float]]]:
-    """
-    Derive a utility estimate by means of value iteration.
+    """Derive a utility estimate by means of value iteration.
 
-    :param mdp: The underlying MDP.
-    :param epsilon: Termination criterion:
-        if maximum difference in utility update is below epsilon, the iteration is terminated.
-    :param max_iterations: Maximum number of iterations, if exceeded, RuntimeError is raised.
-    :param return_history: Whether to return the whole history of utilities instead of just the final estimate.
-    :return: The final utility estimate, if return_history is false.
-        The history of utility estimates as list, if return_history is true.
+    Args:
+        mdp: The underlying MDP.
+        epsilon: Termination criterion: if maximum difference in utility
+            update is below epsilon, the iteration is terminated.
+        max_iterations: Maximum number of iterations, if exceeded,
+            RuntimeError is raised.
+        return_history: Whether to return the whole history of utilities
+            instead of just the final estimate.
+
+    Returns:
+        The final utility estimate, if return_history is false. The
+        history of utility estimates as list, if return_history is true.
     """
     utility = {state: 0 for state in mdp.get_states()}
     utility_history = []
