@@ -1,11 +1,11 @@
-from mdp.mdp import (
-    MDP,
-    GridMDP,
-    expected_utility_of_action,
-    derive_policy,
-    value_iteration,
-    SIMPLE_MDP_DICT,
+from behavior_generation_lecture_python.mdp.mdp import (
     GRID_MDP_DICT,
+    MDP,
+    SIMPLE_MDP_DICT,
+    GridMDP,
+    derive_policy,
+    expected_utility_of_action,
+    value_iteration,
 )
 
 

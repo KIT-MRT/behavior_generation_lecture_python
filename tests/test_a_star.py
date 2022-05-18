@@ -1,7 +1,7 @@
 import matplotlib
 import numpy as np
 
-from graph_search.a_star import Node, Graph
+from behavior_generation_lecture_python.graph_search.a_star import Node, Graph
 
 
 def test_example_graph():

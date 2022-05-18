@@ -1,11 +1,13 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
-import lateral_control_riccati.lateral_control_riccati as cl
-import utils.generate_reference_curve as ref
-from utils.plot_vehicle import plot_vehicle as pv
-from utils.vizard import vizard as vz
-from vehicle_models.vehicle_parameters import DEFAULT_VEHICLE_PARAMS
+import behavior_generation_lecture_python.lateral_control_riccati.lateral_control_riccati as cl
+import behavior_generation_lecture_python.utils.generate_reference_curve as ref
+from behavior_generation_lecture_python.utils.plot_vehicle import plot_vehicle as pv
+from behavior_generation_lecture_python.utils.vizard import vizard as vz
+from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import (
+    DEFAULT_VEHICLE_PARAMS,
+)
 
 
 def main():

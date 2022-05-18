@@ -1,8 +1,11 @@
-from statemachine import StateMachine, State
 import time
 import warnings
 
-from finite_state_machine.traffic_light_visualization import VisualizeTrafficLights
+from statemachine import State, StateMachine
+
+from behavior_generation_lecture_python.finite_state_machine.traffic_light_visualization import (
+    VisualizeTrafficLights,
+)
 
 
 class TrafficLightStateMachine(StateMachine):

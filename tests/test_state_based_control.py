@@ -1,6 +1,8 @@
 import pytest
 
-from lateral_control_state_based import state_based_controller
+from behavior_generation_lecture_python.lateral_control_state_based import (
+    state_based_controller,
+)
 
 
 def test_feedback_law():

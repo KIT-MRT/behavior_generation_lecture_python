@@ -1,6 +1,8 @@
 import pytest
 
-from finite_state_machine import traffic_light_state_machine
+from behavior_generation_lecture_python.finite_state_machine import (
+    traffic_light_state_machine,
+)
 
 
 def test_abstract_state():

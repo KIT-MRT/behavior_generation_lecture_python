@@ -1,7 +1,10 @@
-import pytest
 import os
 
-from finite_state_machine import traffic_light_state_machine_with_visu
+import pytest
+
+from behavior_generation_lecture_python.finite_state_machine import (
+    traffic_light_state_machine_with_visu,
+)
 
 
 @pytest.mark.skipif(not os.environ.get("DISPLAY"), reason="Display required")

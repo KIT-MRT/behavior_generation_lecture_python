@@ -1,14 +1,17 @@
 import math
+from dataclasses import dataclass
+
 import numpy as np
 import scipy.linalg
 from scipy import signal
 from scipy.integrate import odeint
-from dataclasses import dataclass
 
-import lateral_control_riccati.riccati_controller as con
-import utils.projection as pro
-import vehicle_models.dynamic_one_track_model as dotm
-from vehicle_models.vehicle_parameters import VehicleParameters
+import behavior_generation_lecture_python.lateral_control_riccati.riccati_controller as con
+import behavior_generation_lecture_python.utils.projection as pro
+import behavior_generation_lecture_python.vehicle_models.dynamic_one_track_model as dotm
+from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import (
+    VehicleParameters,
+)
 
 
 @dataclass

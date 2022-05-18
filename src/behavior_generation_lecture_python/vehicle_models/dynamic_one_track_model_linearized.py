@@ -1,7 +1,9 @@
 import numpy as np
 from scipy.integrate import odeint
 
-from vehicle_models.vehicle_parameters import DEFAULT_VEHICLE_PARAMS
+from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import (
+    DEFAULT_VEHICLE_PARAMS,
+)
 
 
 class DynamicOneTrackModelLinearized:

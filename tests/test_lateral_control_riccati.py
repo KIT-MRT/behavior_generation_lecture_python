@@ -1,10 +1,12 @@
-import pytest
 import numpy as np
+import pytest
 
-import lateral_control_riccati.lateral_control_riccati as cl
-import utils.generate_reference_curve as ref
-from utils.projection import project2curve
-from vehicle_models.vehicle_parameters import DEFAULT_VEHICLE_PARAMS
+import behavior_generation_lecture_python.lateral_control_riccati.lateral_control_riccati as cl
+import behavior_generation_lecture_python.utils.generate_reference_curve as ref
+from behavior_generation_lecture_python.utils.projection import project2curve
+from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import (
+    DEFAULT_VEHICLE_PARAMS,
+)
 
 
 @pytest.mark.parametrize("test_r,error_factor", [(10000, 1), (10, 0.5)])
