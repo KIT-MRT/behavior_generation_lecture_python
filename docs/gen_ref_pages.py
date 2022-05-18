@@ -1,5 +1,10 @@
 """Generate the code reference pages and navigation."""
 
+"""
+Modified from https://github.com/mkdocstrings/mkdocstrings/blob/master/docs/recipes.md
+ISC License, Copyright (c) 2019, Timothée Mazzucotelli
+"""
+
 from pathlib import Path
 
 import mkdocs_gen_files
