@@ -135,10 +135,8 @@ class Graph:
             self.nodes_dict[start]
             self.nodes_dict[end]
         except KeyError as error:
-            print(
-                f"Could not find node {error} in the graph, Make sure that the start and end nodes are in the graph."
-            )
-            return False
+            raise ValueError(f"Start and end node must be in graph. Failing node: {error}.")
+
         self._end_node = end
         open_set = set()
         closed_set = set()
