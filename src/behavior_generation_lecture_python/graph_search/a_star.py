@@ -132,7 +132,7 @@ class Graph:
         :return: True if shortest path found, False otherwise.
         """
         try:
-            self.nodes_dict["K"]
+            self.nodes_dict[start]
             self.nodes_dict[end]
         except KeyError as error:
             print(
