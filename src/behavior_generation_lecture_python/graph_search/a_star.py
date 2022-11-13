@@ -131,6 +131,12 @@ class Graph:
         :param end: Name of the end node.
         :return: True if shortest path found, False otherwise.
         """
+        try:
+            self.nodes_dict["K"]
+            self.nodes_dict[end]
+        except KeyError as error:
+            print(f"Could not find node {error} in the graph, Make sure that the start and end nodes are in the graph.")
+            return False
         self._end_node = end
         open_set = set()
         closed_set = set()

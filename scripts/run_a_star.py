@@ -25,9 +25,11 @@ def main():
     graph = Graph(nodes_dict=nodes_dict)
     graph.draw_graph()
 
-    graph.a_star(start="M", end="HH")
-
-    graph.draw_result()
+    success = graph.a_star(start="M", end="HH")
+    if success:
+        graph.draw_result()
+    else:
+        print("The a start algorithm was not successfull. Maybe check your graph configs.")
 
 
 if __name__ == "__main__":
