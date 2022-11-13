@@ -29,7 +29,9 @@ def main():
     if success:
         graph.draw_result()
     else:
-        print("The a start algorithm was not successfull. Maybe check your graph configs.")
+        print(
+            "The a start algorithm was not successfull. Maybe check your graph configs."
+        )
 
 
 if __name__ == "__main__":

@@ -135,7 +135,9 @@ class Graph:
             self.nodes_dict["K"]
             self.nodes_dict[end]
         except KeyError as error:
-            print(f"Could not find node {error} in the graph, Make sure that the start and end nodes are in the graph.")
+            print(
+                f"Could not find node {error} in the graph, Make sure that the start and end nodes are in the graph."
+            )
             return False
         self._end_node = end
         open_set = set()
