@@ -1,7 +1,13 @@
 # Python Code for the Lecture "Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles) at KIT
 
+![GitHub CI](https://github.com/KIT-MRT/behavior_generation_lecture_python/actions/workflows/ci.yml/badge.svg) 
+![License](https://img.shields.io/github/license/kit-mrt/behavior_generation_lecture_python)
+![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
+
 This repository contains the python code for the lecture ["Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles)](https://www.mrt.kit.edu/lehre_WS_Verhaltensgenerierung_Fahrzeuge.php) at KIT.
 It is targeted towards both, exemplifying the content of the lecture, and giving a brief introduction to software development. (Please bare with us, the code is largely ported from matlab.)
+
+An API documentation for new parts of the code and exemplary jupyter notebooks can be found in the [documentation](https://kit-mrt.github.io/behavior_generation_lecture_python/).
 
 ## Preparing the environment
 
