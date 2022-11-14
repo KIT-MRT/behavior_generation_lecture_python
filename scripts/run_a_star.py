@@ -26,12 +26,10 @@ def main():
     graph.draw_graph()
 
     success = graph.a_star(start="M", end="HH")
-    if success:
-        graph.draw_result()
-    else:
-        print(
-            "The a start algorithm was not successfull. Maybe check your graph configs."
-        )
+    if not success:
+        raise RuntimeError("A star algorithm did not find a path.")
+
+    graph.draw_result()
 
 
 if __name__ == "__main__":
