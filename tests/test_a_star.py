@@ -1,30 +1,45 @@
-import math
+import matplotlib
+import numpy as np
 
-import behavior_generation_lecture_python.graph_search.a_star as a_star
-
-
-class TestNodeClass:
-    node1 = a_star.GraphNode("Test Name 1", 0, 0)
-    node2 = a_star.GraphNode("Test Name 2", math.sqrt(2), math.sqrt(2))
-    node3 = a_star.GraphNode("Test Name 3", 1, 1)
-
-    def test_distance_to_function(self):
-        assert self.node1.distance_to(self.node2) == 2
-
-    def test_conntected_to_function(self):
-        self.node1.add_connected_to(self.node2)
-        self.node1.add_connected_to(self.node3)
-        self.node2.add_connected_to(self.node3)
-        assert len(self.node1.connected_to) == 2
-        assert len(self.node2.connected_to) == 1
+from behavior_generation_lecture_python.graph_search.a_star import Node, Graph
 
 
 def test_example_graph():
-    graph = a_star.ExampleGraph()
+    matplotlib.use("Agg")
 
-    HH = graph.nodes[0]
-    M = graph.nodes[6]
+    nodes_list = [
+        ["HH", 170, 620, ["H", "B"]],
+        ["H", 150, 520, ["B", "L", "F", "HH"]],
+        ["B", 330, 540, ["HH", "H", "L"]],
+        ["L", 290, 420, ["B", "H", "S", "M"]],
+        ["F", 60, 270, ["H", "S"]],
+        ["S", 80, 120, ["F", "L", "M"]],
+        ["M", 220, 20, ["S", "L"]],
+    ]
+    nodes_dict = {}
+    for entry in nodes_list:
+        nodes_dict[entry[0]] = Node(
+            name=entry[0],
+            position=np.array([entry[1], entry[2]]),
+            connected_to=entry[3],
+        )
 
-    result = graph.a_star(M, HH)
+    graph = Graph(nodes_dict=nodes_dict)
+    graph.draw_graph()
 
-    assert [x.node.name for x in result] == ["M", "L", "H", "HH"]
+    graph.a_star(start="M", end="HH")
+
+    graph.draw_result()
+
+    assert [
+        (node.name, int(node.cost_to_come), int(node.total_cost()))
+        for node in graph.nodes_dict.values()
+    ] == [
+        ("HH", 680, 680),
+        ("H", 578, 680),
+        ("B", 532, 711),
+        ("L", 406, 639),
+        ("F", 323, 690),
+        ("S", 172, 680),
+        ("M", 0, 602),
+    ]
