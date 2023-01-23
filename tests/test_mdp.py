@@ -1,3 +1,5 @@
+import pytest
+
 from behavior_generation_lecture_python.mdp.mdp import (
     GRID_MDP_DICT,
     MDP,
@@ -6,6 +8,10 @@ from behavior_generation_lecture_python.mdp.mdp import (
     derive_policy,
     expected_utility_of_action,
     value_iteration,
+    best_action_from_q_table,
+    random_action,
+    greedy_estimate_for_state,
+    q_learning,
 )
 
 
@@ -95,3 +101,37 @@ def test_value_iteration_history():
 
     for state in true_utility_1.keys():
         assert abs(true_utility_1[state] - computed_utility_history[1][state]) < epsilon
+
+
+def test_best_action_from_q_table():
+    q_table = {("A", 1): 0.5, ("A", 2): 0.6, ("B", 1): 0.7, ("B", 2): 0.8}
+    avail_actions = {1, 2}
+    assert (
+        best_action_from_q_table(
+            state="A", available_actions=avail_actions, q_table=q_table
+        )
+        == 2
+    )
+
+
+def test_random_action():
+    avail_actions = {1, 2}
+    for _ in range(10):
+        assert random_action(available_actions=avail_actions) in avail_actions
+
+
+def test_greedy_estimate_for_state():
+    q_table = {("A", 1): 0.5, ("A", 2): 0.6, ("B", 1): 0.7, ("B", 2): 0.8}
+    assert greedy_estimate_for_state(q_table=q_table, state="A") == 0.6
+    assert greedy_estimate_for_state(q_table=q_table, state="B") == 0.8
+
+
+@pytest.mark.parametrize("return_history", (True, False))
+def test_q_learning(return_history):
+    assert q_learning(
+        mdp=GridMDP(**GRID_MDP_DICT),
+        alpha=0.1,
+        epsilon=0.1,
+        iterations=10000,
+        return_history=return_history,
+    )

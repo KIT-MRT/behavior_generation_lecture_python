@@ -137,6 +137,19 @@ class MDP:
             return [(0.0, state)]
         return self.transition_probabilities[(state, action)]
 
+    def sample_next_state(self, state, action) -> Any:
+        """Randomly sample the next state given the current state and taken action."""
+        if self.is_terminal(state):
+            return ValueError("No next state for terminal states.")
+        if action is None:
+            return ValueError("Action must not be None.")
+        prob_per_transition = self.get_transitions_with_probabilities(state, action)
+        num_actions = len(prob_per_transition)
+        choice = np.random.choice(
+            num_actions, 1, p=[ppa[0] for ppa in prob_per_transition]
+        )
+        return prob_per_transition[int(choice)][1]
+
 
 class GridMDP(MDP):
     def __init__(
@@ -333,3 +346,136 @@ def value_iteration(
                 return utility_history
             return utility
     raise RuntimeError(f"Did not converge in {max_iterations} iterations")
+
+
+def best_action_from_q_table(
+    *, state: Any, available_actions: Set[Any], q_table: Dict[Tuple[Any, Any], float]
+) -> Any:
+    """Derive the best action from a Q table.
+
+    Args:
+        state: The state in which to take an action.
+        available_actions: Set of available actions.
+        q_table: The Q table, mapping from state-action pair to value estimate.
+
+    Returns:
+        The best action according to the Q table.
+    """
+    available_actions = list(available_actions)
+    values = np.array([q_table[(state, action)] for action in available_actions])
+    action = available_actions[np.argmax(values)]
+    return action
+
+
+def random_action(available_actions: Set[Any]) -> Any:
+    """Derive a random action from the set of available actions.
+
+    Args:
+        available_actions: Set of available actions.
+
+    Returns:
+        A random action.
+    """
+    available_actions = list(available_actions)
+    num_actions = len(available_actions)
+    choice = np.random.choice(num_actions, 1)
+    return available_actions[int(choice)]
+
+
+def greedy_estimate_for_state(
+    *, q_table: Dict[Tuple[Any, Any], float], state: Any
+) -> float:
+    """Compute the greedy (best possible) estimate for a state from the Q table.
+
+    Args:
+        state: The state for which to estimate the value, when being greedy.
+        q_table: The Q table, mapping from state-action pair to value estimate.
+
+    Returns:
+        The value based on the greedy estimate.
+    """
+    available_actions = [
+        state_action[1] for state_action in q_table.keys() if state_action[0] == state
+    ]
+    return max([q_table[(state, action)] for action in available_actions])
+
+
+def q_learning(
+    *,
+    mdp: MDP,
+    alpha: float,
+    epsilon: float,
+    iterations: int,
+    return_history: Optional[bool] = False,
+) -> Dict[Tuple[Any, Any], float]:
+    """Derive a value estimate for state-action pairs by means of Q learning.
+
+    Args:
+        mdp: The underlying MDP.
+        alpha: Learning rate.
+        epsilon: Exploration-exploitation treshold. A random action is taken with
+            probability epsilon, the best action otherwise.
+        iterations: Number of iterations.
+        return_history: Whether to return the whole history of value estimates
+            instead of just the final estimate.
+
+    Returns:
+        The final value estimate, if return_history is false. The
+        history of value estimates as list, if return_history is true.
+    """
+    q_table = {}
+    for state in mdp.get_states():
+        for action in mdp.get_actions(state):
+            q_table[(state, action)] = mdp.get_reward(state)
+    q_table_history = []
+    state = mdp.initial_state
+
+    np.random.seed(1337)
+
+    for _ in range(iterations):
+
+        # available actions:
+        avail_actions = mdp.get_actions(state)
+
+        # chose action (exploration-exploitation treshold)
+        rand = np.random.random()
+        if rand < (1 - epsilon):
+            chosen_action = best_action_from_q_table(
+                state=state, available_actions=avail_actions, q_table=q_table
+            )
+        else:
+            chosen_action = random_action(avail_actions)
+
+        next_state = mdp.sample_next_state(state, chosen_action)
+        greedy_estimate_next_state = greedy_estimate_for_state(
+            q_table=q_table, state=next_state
+        )
+
+        # update Q table
+        q_table[(state, chosen_action)] = (1 - alpha) * q_table[
+            (state, chosen_action)
+        ] + alpha * (mdp.get_reward(state) + greedy_estimate_next_state)
+
+        if return_history:
+            q_table_history.append(q_table.copy())
+
+        if mdp.is_terminal(next_state):
+            state = mdp.initial_state  # restart
+        else:
+            state = next_state  # continue
+
+    if return_history:
+        utility_history = []
+        for q_tab in q_table_history:
+            utility_history.append(
+                {
+                    state: greedy_estimate_for_state(q_table=q_tab, state=state)
+                    for state in mdp.get_states()
+                }
+            )
+        return utility_history
+
+    return {
+        state: greedy_estimate_for_state(q_table=q_table, state=state)
+        for state in mdp.get_states()
+    }
