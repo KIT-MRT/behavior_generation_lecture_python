@@ -146,9 +146,9 @@ class MDP:
         prob_per_transition = self.get_transitions_with_probabilities(state, action)
         num_actions = len(prob_per_transition)
         choice = np.random.choice(
-            num_actions, 1, p=[ppa[0] for ppa in prob_per_transition]
+            num_actions, p=[ppa[0] for ppa in prob_per_transition]
         )
-        return prob_per_transition[int(choice)][1]
+        return prob_per_transition[choice][1]
 
 
 class GridMDP(MDP):
@@ -378,14 +378,14 @@ def random_action(available_actions: Set[Any]) -> Any:
     """
     available_actions = list(available_actions)
     num_actions = len(available_actions)
-    choice = np.random.choice(num_actions, 1)
-    return available_actions[int(choice)]
+    choice = np.random.choice(num_actions)
+    return available_actions[choice]
 
 
-def greedy_estimate_for_state(
+def greedy_value_estimate_for_state(
     *, q_table: Dict[Tuple[Any, Any], float], state: Any
 ) -> float:
-    """Compute the greedy (best possible) estimate for a state from the Q table.
+    """Compute the greedy (best possible) value estimate for a state from the Q table.
 
     Args:
         state: The state for which to estimate the value, when being greedy.
@@ -447,14 +447,14 @@ def q_learning(
             chosen_action = random_action(avail_actions)
 
         next_state = mdp.sample_next_state(state, chosen_action)
-        greedy_estimate_next_state = greedy_estimate_for_state(
+        greedy_value_estimate_next_state = greedy_value_estimate_for_state(
             q_table=q_table, state=next_state
         )
 
         # update Q table
         q_table[(state, chosen_action)] = (1 - alpha) * q_table[
             (state, chosen_action)
-        ] + alpha * (mdp.get_reward(state) + greedy_estimate_next_state)
+        ] + alpha * (mdp.get_reward(state) + greedy_value_estimate_next_state)
 
         if return_history:
             q_table_history.append(q_table.copy())
@@ -469,13 +469,13 @@ def q_learning(
         for q_tab in q_table_history:
             utility_history.append(
                 {
-                    state: greedy_estimate_for_state(q_table=q_tab, state=state)
+                    state: greedy_value_estimate_for_state(q_table=q_tab, state=state)
                     for state in mdp.get_states()
                 }
             )
         return utility_history
 
     return {
-        state: greedy_estimate_for_state(q_table=q_table, state=state)
+        state: greedy_value_estimate_for_state(q_table=q_table, state=state)
         for state in mdp.get_states()
     }

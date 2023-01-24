@@ -10,7 +10,7 @@ from behavior_generation_lecture_python.mdp.mdp import (
     value_iteration,
     best_action_from_q_table,
     random_action,
-    greedy_estimate_for_state,
+    greedy_value_estimate_for_state,
     q_learning,
 )
 
@@ -120,10 +120,10 @@ def test_random_action():
         assert random_action(available_actions=avail_actions) in avail_actions
 
 
-def test_greedy_estimate_for_state():
+def test_greedy_value_estimate_for_state():
     q_table = {("A", 1): 0.5, ("A", 2): 0.6, ("B", 1): 0.7, ("B", 2): 0.8}
-    assert greedy_estimate_for_state(q_table=q_table, state="A") == 0.6
-    assert greedy_estimate_for_state(q_table=q_table, state="B") == 0.8
+    assert greedy_value_estimate_for_state(q_table=q_table, state="A") == 0.6
+    assert greedy_value_estimate_for_state(q_table=q_table, state="B") == 0.8
 
 
 @pytest.mark.parametrize("return_history", (True, False))
