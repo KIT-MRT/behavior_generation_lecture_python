@@ -42,7 +42,9 @@ nav:
       - Lateral Control (state-based): notebooks/lateral_control_state_based_notebook.ipynb
       - Lateral Control (Riccati): notebooks/lateral_control_riccati_notebook.ipynb
       - Graph Search: notebooks/a_star_notebook.ipynb
-      - Decision Making: notebooks/mdp.ipynb
+      - Decision Making: 
+          - Value Iteration: notebooks/mdp_value_iteration.ipynb
+          - Q-Learning: notebooks/mdp_q_learning.ipynb
   - API Documentation (partial): reference/
 
 plugins:
