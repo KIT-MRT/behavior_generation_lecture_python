@@ -413,7 +413,7 @@ def q_learning(
     Args:
         mdp: The underlying MDP.
         alpha: Learning rate.
-        epsilon: Exploration-exploitation treshold. A random action is taken with
+        epsilon: Exploration-exploitation threshold. A random action is taken with
             probability epsilon, the best action otherwise.
         iterations: Number of iterations.
         return_history: Whether to return the whole history of value estimates
@@ -437,7 +437,7 @@ def q_learning(
         # available actions:
         avail_actions = mdp.get_actions(state)
 
-        # chose action (exploration-exploitation treshold)
+        # choose action (exploration-exploitation trade-off)
         rand = np.random.random()
         if rand < (1 - epsilon):
             chosen_action = best_action_from_q_table(
@@ -446,12 +446,13 @@ def q_learning(
         else:
             chosen_action = random_action(avail_actions)
 
+        # interact with environment
         next_state = mdp.sample_next_state(state, chosen_action)
+
+        # update Q table
         greedy_value_estimate_next_state = greedy_value_estimate_for_state(
             q_table=q_table, state=next_state
         )
-
-        # update Q table
         q_table[(state, chosen_action)] = (1 - alpha) * q_table[
             (state, chosen_action)
         ] + alpha * (mdp.get_reward(state) + greedy_value_estimate_next_state)
