@@ -103,7 +103,9 @@ def pseudo_projection(start_index, x, y, x_c, y_c, theta_c):
     p1 = np.array([x_c[start_index], y_c[start_index]])
     p2 = np.array([x_c[start_index + 1], y_c[start_index + 1]])
     theta1 = theta_c[start_index]
+    theta1 = na.normalize_angle(theta1)
     theta2 = theta_c[start_index + 1]
+    theta2 = na.normalize_angle(theta2)
     delta = np.array(p2) - np.array(p1)
     length = np.linalg.norm(delta)
 
