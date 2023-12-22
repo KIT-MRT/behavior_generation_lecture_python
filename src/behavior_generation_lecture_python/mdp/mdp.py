@@ -276,7 +276,7 @@ def expected_utility_of_action(
         Expected utility
     """
     return sum(
-        p * utility_of_states[next_state]
+        p * (mdp.get_reward(next_state) + utility_of_states[next_state])
         for (p, next_state) in mdp.get_transitions_with_probabilities(
             state=state, action=action
         )
@@ -327,17 +327,12 @@ def value_iteration(
         history of utility estimates as list, if return_history is true.
     """
     utility = {state: 0 for state in mdp.get_states()}
-    utility_history = []
+    utility_history = [utility.copy()]
     for _ in range(max_iterations):
         utility_old = utility.copy()
         max_delta = 0
         for state in mdp.get_states():
-            utility[state] = mdp.get_reward(state) + max(
-                expected_utility_of_action(
-                    mdp, state=state, action=action, utility_of_states=utility_old
-                )
-                for action in mdp.get_actions(state)
-            )
+            utility[state] = max(expected_utility_of_action(mdp, state=state, action=action, utility_of_states=utility_old) for action in mdp.get_actions(state))
             max_delta = max(max_delta, abs(utility[state] - utility_old[state]))
         if return_history:
             utility_history.append(utility.copy())
@@ -426,8 +421,8 @@ def q_learning(
     q_table = {}
     for state in mdp.get_states():
         for action in mdp.get_actions(state):
-            q_table[(state, action)] = mdp.get_reward(state)
-    q_table_history = []
+            q_table[(state, action)] =  0.
+    q_table_history = [q_table.copy()]
     state = mdp.initial_state
 
     np.random.seed(1337)
@@ -455,7 +450,7 @@ def q_learning(
         )
         q_table[(state, chosen_action)] = (1 - alpha) * q_table[
             (state, chosen_action)
-        ] + alpha * (mdp.get_reward(state) + greedy_value_estimate_next_state)
+        ] + alpha * (mdp.get_reward(next_state) + greedy_value_estimate_next_state)
 
         if return_history:
             q_table_history.append(q_table.copy())

@@ -31,7 +31,7 @@ def test_init_grid_mdp():
 
 def test_expected_utility():
     mdp = MDP(**SIMPLE_MDP_DICT)
-    assert 0.8 * 1 + 0.2 * 0.01 == expected_utility_of_action(
+    assert 0.8 * (-0.5 + 1) + 0.2 * (-0.1 + 0.01) == expected_utility_of_action(
         mdp=mdp, state=1, action="A", utility_of_states={1: 0.01, 2: 1}
     )
 
@@ -44,19 +44,19 @@ def test_derive_policy():
 
 def test_value_iteration():
     grid_mdp = GridMDP(**GRID_MDP_DICT)
-    epsilon = 0.001
+    epsilon = 0.0005
     true_utility = {
-        (0, 0): 0.705,
-        (0, 1): 0.762,
-        (0, 2): 0.812,
-        (1, 0): 0.655,
-        (1, 2): 0.868,
-        (2, 0): 0.611,
-        (2, 1): 0.660,
-        (2, 2): 0.918,
-        (3, 0): 0.388,
-        (3, 1): -1.0,
-        (3, 2): 1.0,
+        (0, 0): 0.745,
+        (0, 1): 0.802,
+        (0, 2): 0.852,
+        (1, 0): 0.695,
+        (1, 2): 0.908,
+        (2, 0): 0.651,
+        (2, 1): 0.700,
+        (2, 2): 0.958,
+        (3, 0): 0.428,
+        (3, 1): 0,
+        (3, 2): 0,
     }
 
     computed_utility = value_iteration(mdp=grid_mdp, epsilon=epsilon, max_iterations=30)
@@ -66,8 +66,21 @@ def test_value_iteration():
 
 def test_value_iteration_history():
     grid_mdp = GridMDP(**GRID_MDP_DICT)
-    epsilon = 0.001
+    epsilon = 0.0005
     true_utility_0 = {
+        (0, 0): 0,
+        (0, 1): 0,
+        (0, 2): 0,
+        (1, 0): 0,
+        (1, 2): 0,
+        (2, 0): 0,
+        (2, 1): 0,
+        (2, 2): 0,
+        (3, 0): 0,
+        (3, 1): 0,
+        (3, 2): 0,
+    }
+    true_utility_1 = {
         (0, 0): -0.04,
         (0, 1): -0.04,
         (0, 2): -0.04,
@@ -75,23 +88,23 @@ def test_value_iteration_history():
         (1, 2): -0.04,
         (2, 0): -0.04,
         (2, 1): -0.04,
-        (2, 2): -0.04,
+        (2, 2): 0.792,
         (3, 0): -0.04,
-        (3, 1): -1.0,
-        (3, 2): 1.0,
+        (3, 1): 0,
+        (3, 2): 0,
     }
-    true_utility_1 = {
+    true_utility_2 = {
         (0, 0): -0.08,
         (0, 1): -0.08,
         (0, 2): -0.08,
         (1, 0): -0.08,
-        (1, 2): -0.08,
+        (1, 2): 0.586,
         (2, 0): -0.08,
-        (2, 1): -0.08,
-        (2, 2): 0.752,
+        (2, 1): 0.494,
+        (2, 2): 0.867,
         (3, 0): -0.08,
-        (3, 1): -1.0,
-        (3, 2): 1.0,
+        (3, 1): 0,
+        (3, 2): 0,
     }
     computed_utility_history = value_iteration(
         mdp=grid_mdp, epsilon=epsilon, max_iterations=30, return_history=True
@@ -101,6 +114,9 @@ def test_value_iteration_history():
 
     for state in true_utility_1.keys():
         assert abs(true_utility_1[state] - computed_utility_history[1][state]) < epsilon
+        
+    for state in true_utility_2.keys():
+        assert abs(true_utility_2[state] - computed_utility_history[2][state]) < epsilon
 
 
 def test_best_action_from_q_table():
