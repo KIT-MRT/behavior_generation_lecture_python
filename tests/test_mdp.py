@@ -114,7 +114,7 @@ def test_value_iteration_history():
 
     for state in true_utility_1.keys():
         assert abs(true_utility_1[state] - computed_utility_history[1][state]) < epsilon
-        
+
     for state in true_utility_2.keys():
         assert abs(true_utility_2[state] - computed_utility_history[2][state]) < epsilon
 
