@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from typing import List
 from torch.distributions.categorical import Categorical
 
 
@@ -16,7 +17,7 @@ def mlp(sizes, activation=nn.ReLU, output_activation=nn.Identity):
 
 
 class CategorialPolicy:
-    def __init__(self, sizes: list[int], actions: list):
+    def __init__(self, sizes: List[int], actions: List):
         assert sizes[-1] == len(actions)
         torch.manual_seed(1337)
         self.net = mlp(sizes=sizes)
