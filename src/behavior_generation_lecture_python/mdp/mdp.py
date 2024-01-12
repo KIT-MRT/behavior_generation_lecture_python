@@ -1,7 +1,9 @@
 import math
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
-
+import torch
 import numpy as np
+from copy import deepcopy
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
 
 SIMPLE_MDP_DICT = {
     "states": [1, 2],
@@ -149,6 +151,13 @@ class MDP:
             num_actions, p=[ppa[0] for ppa in prob_per_transition]
         )
         return prob_per_transition[choice][1]
+
+    def execute_action(self, state, action) -> Any:
+        """Executes the action in the current state and returns the new state, obtained reward and terminal flag."""
+        new_state = self.sample_next_state(state=state, action=action)
+        reward = self.get_reward(state=new_state)
+        terminal = self.is_terminal(state=new_state)
+        return new_state, reward, terminal
 
 
 class GridMDP(MDP):
@@ -480,3 +489,158 @@ def q_learning(
         state: greedy_value_estimate_for_state(q_table=q_table, state=state)
         for state in mdp.get_states()
     }
+
+
+def policy_gradient(
+    *,
+    mdp: MDP,
+    pol: CategorialPolicy,
+    lr=1e-2,
+    iterations=50,
+    batch_size=5000,
+    return_history: bool = False,
+    use_random_init_state: bool = False,
+    verbose: bool = True,
+) -> Union[List[CategorialPolicy], CategorialPolicy]:
+    """Train a paramterized policy using vanilla policy gradient.
+
+    Adapted from: https://github.com/openai/spinningup/blob/master/spinup/examples/pytorch/pg_math/1_simple_pg.py
+
+    The MIT License (MIT)
+
+    Copyright (c) 2018 OpenAI (http://openai.com)
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+    Args:
+        mdp: The underlying MDP.
+        pol: The stochastic policy to be trained.
+        lr: Learning rate.
+        iterations: Number of iterations.
+        batch_size: Number of samples generated for each policy update.
+        return_history: Whether to return the whole history of value estimates
+            instead of just the final estimate.
+        use_random_init_state: bool, if the agent should be initialized randomly.
+        verbose: bool, if traing progress should be printed.
+
+    Returns:
+        The final policy, if return_history is false. The
+        history of policies as list, if return_history is true.
+    """
+    np.random.seed(1337)
+    torch.manual_seed(1337)
+
+    # add untrained model to model_checkpoints
+    model_checkpoints = [deepcopy(pol)]
+
+    # make optimizer
+    optimizer = torch.optim.Adam(pol.net.parameters(), lr=lr)
+
+    # get non-terminal states
+    non_terminal_states = [state for state in mdp.states if not mdp.is_terminal(state)]
+
+    # training loop
+    for i in range(1, iterations + 1):
+
+        # make some empty lists for logging.
+        buffer = {
+            "states": [],
+            "actions": [],
+            "weights": [],
+            "ep_rets": [],
+            "ep_lens": [],
+        }
+
+        # reset episode-specific variables
+        if use_random_init_state:
+            state = non_terminal_states[np.random.choice(len(non_terminal_states))]
+        else:
+            state = mdp.initial_state
+        episode_rewards = []
+
+        # collect experience by acting in the mdp
+        while True:
+            # save visited state
+            buffer["states"].append(deepcopy(state))
+
+            # call model to get next action
+            action = pol.get_action(state=torch.as_tensor(state, dtype=torch.float32))
+
+            # execute action in the environment
+            state, reward, done = mdp.execute_action(state=state, action=action)
+
+            # save action, reward
+            buffer["actions"].append(action)
+            episode_rewards.append(reward)
+
+            if done:
+                # if episode is over, record info about episode
+                episode_return = sum(episode_rewards)
+                episode_length = len(episode_rewards)
+                buffer["ep_rets"].append(episode_return)
+                buffer["ep_lens"].append(episode_length)
+                # the weight for each logprob(a|s) is R(tau)
+                buffer["weights"] += [episode_return] * episode_length
+
+                # reset episode-specific variables
+                if use_random_init_state:
+                    state = non_terminal_states[
+                        np.random.choice(len(non_terminal_states))
+                    ]
+                else:
+                    state = mdp.initial_state
+                episode_rewards = []
+
+                # end experience loop if we have enough of it
+                if len(buffer["states"]) > batch_size:
+                    break
+
+        # compute the loss
+        logp = pol.get_log_prob(
+            states=torch.as_tensor(buffer["states"], dtype=torch.float32),
+            actions=torch.as_tensor(buffer["actions"], dtype=torch.int32),
+        )
+        batch_loss = -(
+            logp * torch.as_tensor(buffer["weights"], dtype=torch.float32)
+        ).mean()
+
+        # take a single policy gradient update step
+        optimizer.zero_grad()
+        batch_loss.backward()
+        optimizer.step()
+
+        # logging
+        if verbose:
+            print(
+                "iteration: %3d;  return: %.3f;  episode_length: %.3f"
+                % (i, np.mean(buffer["ep_rets"]), np.mean(buffer["ep_lens"]))
+            )
+        if return_history:
+            model_checkpoints.append(deepcopy(pol))
+    if return_history:
+        return model_checkpoints
+    return pol
+
+
+def derive_deterministic_policy(mdp: MDP, pol: CategorialPolicy):
+    """Compute the best policy for an MDP given the stochastic policy.
+
+    Args:
+        mdp: The underlying MDP.
+        pol: The stochastic policy.
+
+    Returns:
+        Policy, i.e. mapping from state to action.
+    """
+    pi = {}
+    for state in mdp.get_states():
+        if mdp.is_terminal(state):
+            continue
+        pi[state] = pol.get_action(
+            state=torch.as_tensor(state, dtype=torch.float32), deterministic=True
+        )
+    return pi
