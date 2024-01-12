@@ -495,9 +495,9 @@ def policy_gradient(
     *,
     mdp: MDP,
     pol: CategorialPolicy,
-    lr=1e-2,
-    iterations=50,
-    batch_size=5000,
+    lr: float = 1e-2,
+    iterations: int = 50,
+    batch_size: int = 5000,
     return_history: bool = False,
     use_random_init_state: bool = False,
     verbose: bool = True,
@@ -626,7 +626,7 @@ def policy_gradient(
     return pol
 
 
-def derive_deterministic_policy(mdp: MDP, pol: CategorialPolicy):
+def derive_deterministic_policy(mdp: MDP, pol: CategorialPolicy) -> Dict[Any, Any]:
     """Compute the best policy for an MDP given the stochastic policy.
 
     Args:
