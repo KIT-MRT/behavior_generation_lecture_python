@@ -26,7 +26,6 @@ class CategorialPolicy:
             len(actions), -1
         )
 
-    # make function to compute action distribution
     def _get_distribution(self, state: torch.Tensor):
         """Calls the model and returns a categorial distribution over the actions."""
         logits = self.net(state)
