@@ -152,7 +152,7 @@ class MDP:
         )
         return prob_per_transition[choice][1]
 
-    def execute_action(self, state, action) -> Any:
+    def execute_action(self, state, action) -> Tuple[Any, float, bool]:
         """Executes the action in the current state and returns the new state, obtained reward and terminal flag."""
         new_state = self.sample_next_state(state=state, action=action)
         reward = self.get_reward(state=new_state)
