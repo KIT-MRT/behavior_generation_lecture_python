@@ -1,13 +1,13 @@
 import matplotlib
 
-from behavior_generation_lecture_python.utils.grid_plotting import (
-    make_plot_grid_step_function,
-    make_plot_policy_step_function,
-)
 from behavior_generation_lecture_python.mdp.mdp import (
     GRID_MDP_DICT,
     GridMDP,
     derive_policy,
+)
+from behavior_generation_lecture_python.utils.grid_plotting import (
+    make_plot_grid_step_function,
+    make_plot_policy_step_function,
 )
 
 TRUE_UTILITY_GRID_MDP = {

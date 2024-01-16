@@ -1,6 +1,6 @@
 import numpy as np
 
-from behavior_generation_lecture_python.graph_search.a_star import Node, Graph
+from behavior_generation_lecture_python.graph_search.a_star import Graph, Node
 
 
 def main():

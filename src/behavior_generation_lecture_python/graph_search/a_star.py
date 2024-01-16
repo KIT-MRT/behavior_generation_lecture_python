@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from typing import Dict, List, Set
+
 import matplotlib.pyplot as plt
 import numpy as np
-
-from typing import Dict, List, Set
 
 
 class Node:

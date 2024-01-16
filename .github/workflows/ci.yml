@@ -23,6 +23,9 @@ jobs:
       - name: run black
         run: black --check .
 
+      - name: run isort
+        run: isort .
+
       - name: run pylint for mdp folder
         run: pylint src/behavior_generation_lecture_python/mdp --errors-only
 
