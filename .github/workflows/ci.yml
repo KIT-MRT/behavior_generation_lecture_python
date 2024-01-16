@@ -26,6 +26,9 @@ jobs:
       - name: run pylint for mdp folder
         run: pylint src/behavior_generation_lecture_python/mdp --errors-only
 
+      - name: run mypy for mdp folder
+        run: mypy src/behavior_generation_lecture_python/mdp
+
       - name: test
         run: pytest
 
