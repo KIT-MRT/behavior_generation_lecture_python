@@ -5,13 +5,13 @@ from behavior_generation_lecture_python.mdp.mdp import (
     MDP,
     SIMPLE_MDP_DICT,
     GridMDP,
+    best_action_from_q_table,
     derive_policy,
     expected_utility_of_action,
-    value_iteration,
-    best_action_from_q_table,
-    random_action,
     greedy_value_estimate_for_state,
     q_learning,
+    random_action,
+    value_iteration,
 )
 
 
