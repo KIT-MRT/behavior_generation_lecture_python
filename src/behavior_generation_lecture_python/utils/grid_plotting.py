@@ -71,7 +71,16 @@ def make_plot_policy_step_function(columns, rows, policy_over_time, show=True):
                 scaling = np.sqrt(dx**2.0 + dy**2.0) * 2.5
                 dx /= scaling
                 dy /= scaling
-                plt.arrow(x, y, dx, dy)
+                plt.arrow(
+                    x,
+                    y,
+                    dx,
+                    dy,
+                    shape="full",
+                    lw=1.0,
+                    length_includes_head=True,
+                    head_width=0.15,
+                )
         plt.axis("equal")
         plt.xlim([0, columns])
         plt.ylim([0, rows])
