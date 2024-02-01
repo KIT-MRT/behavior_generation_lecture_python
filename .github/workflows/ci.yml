@@ -42,7 +42,7 @@ jobs:
         run: |
           export DISPLAY=:99
           Xvfb :99 &
-          pytest --cov=src --cov-fail-under=70
+          pytest --cov=src --cov-fail-under=85
 
       - name: copy notebooks to docs folder
         run: cp -r notebooks/* docs/notebooks
