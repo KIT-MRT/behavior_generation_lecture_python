@@ -26,8 +26,8 @@ class TrafficLightStateMachine(StateMachine):
     veh_go = veh_red_yellow.to(veh_green)
 
     def __init__(self, start_mainloop=True):
-        StateMachine.__init__(self)
         self.visu = VisualizeTrafficLights()
+        super().__init__(self)
         self.visu.register_button_event(self.button_press)
         self.visu.vehicle_go()
         if start_mainloop:
@@ -38,34 +38,34 @@ class TrafficLightStateMachine(StateMachine):
         time.sleep(3)
         self.visu.vehicle_prepare_to_stop()
         time.sleep(3)
-        self.run("veh_stop")
+        self.send("veh_stop")
 
     def on_enter_veh_red_ped_red_1(self):
         self.visu.vehicle_stop()
         time.sleep(2)
-        self.run("ped_go")
+        self.send("ped_go")
 
     def on_enter_veh_red_ped_green(self):
         self.visu.pedestrian_go()
         time.sleep(5)
-        self.run("ped_stop")
+        self.send("ped_stop")
 
     def on_enter_veh_red_ped_red_2(self):
         self.visu.pedestrian_stop()
         time.sleep(5)
-        self.run("veh_prepare_to_go")
+        self.send("veh_prepare_to_go")
 
     def on_enter_veh_red_yellow(self):
         self.visu.vehicle_prepare_to_go()
         time.sleep(2)
-        self.run("veh_go")
+        self.send("veh_go")
 
     def on_enter_veh_green(self):
         self.visu.vehicle_go()
 
     def button_press(self, event):
-        if self.is_veh_green:
-            self.run("veh_prepare_to_stop")
+        if self.state == "veh_green":
+            self.send("veh_prepare_to_stop")
         else:
             warnings.warn(
                 "The button only has effect if currently vehicles have green."
