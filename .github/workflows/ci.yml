@@ -36,9 +36,13 @@ jobs:
         run: mypy src/behavior_generation_lecture_python/mdp
 
       - name: test
+        env:
+          DISPLAY: ":0.0"
         run: pytest
 
-      - name: check coverage # (less coverage required here since vizard is not tested)
+      - name: check coverage
+        env:
+          DISPLAY: ":0.0"
         run: pytest --cov=src --cov-fail-under=70
 
       - name: copy notebooks to docs folder
