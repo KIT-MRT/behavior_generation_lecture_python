@@ -1,5 +1,8 @@
+"""This module contains the Markov Decision Process, value iteration, Q learning and policy gradient."""
+
 import math
 from copy import deepcopy
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
@@ -58,6 +61,8 @@ HIGHWAY_MDP_DICT = {
 
 
 class MDP:
+    """A Markov decision process."""
+
     def __init__(
         self,
         states: Set[Any],
@@ -121,9 +126,7 @@ class MDP:
         """Get the set of actions available in a certain state, returns [None] for terminal states."""
         if self.is_terminal(state):
             return {None}
-        return set(
-            [a for a in self.actions if (state, a) in self.transition_probabilities]
-        )
+        return {a for a in self.actions if (state, a) in self.transition_probabilities}
 
     def get_reward(self, state) -> float:
         """Get the reward for a specific state."""
@@ -166,6 +169,8 @@ GridState = Tuple[int, int]
 
 
 class GridMDP(MDP):
+    """A Markov decision process on a grid."""
+
     def __init__(
         self,
         grid: List[List[Union[float, None]]],
@@ -417,7 +422,7 @@ def greedy_value_estimate_for_state(*, q_table: QTable, state: Any) -> float:
     available_actions = [
         state_action[1] for state_action in q_table.keys() if state_action[0] == state
     ]
-    return max([q_table[(state, action)] for action in available_actions])
+    return max(q_table[state, action] for action in available_actions)
 
 
 def q_learning(
@@ -502,10 +507,29 @@ def q_learning(
     }
 
 
+@dataclass
+class PolicyGradientBuffer:
+    """Buffer for the policy gradient method."""
+
+    states: List[Any] = field(default_factory=list)
+    actions: List[Any] = field(default_factory=list)
+    weights: List[float] = field(default_factory=list)
+    episode_returns: List[float] = field(default_factory=list)
+    episode_lengths: List[int] = field(default_factory=list)
+
+    def mean_episode_return(self) -> float:
+        """Mean episode return."""
+        return float(np.mean(self.episode_returns))
+
+    def mean_episode_length(self) -> float:
+        """Mean episode length."""
+        return float(np.mean(self.episode_lengths))
+
+
 def policy_gradient(
     *,
     mdp: MDP,
-    pol: CategorialPolicy,
+    policy: CategorialPolicy,
     lr: float = 1e-2,
     iterations: int = 50,
     batch_size: int = 5000,
@@ -529,7 +553,7 @@ def policy_gradient(
 
     Args:
         mdp: The underlying MDP.
-        pol: The stochastic policy to be trained.
+        policy: The stochastic policy to be trained.
         lr: Learning rate.
         iterations: Number of iterations.
         batch_size: Number of samples generated for each policy update.
@@ -546,10 +570,10 @@ def policy_gradient(
     torch.manual_seed(1337)
 
     # add untrained model to model_checkpoints
-    model_checkpoints = [deepcopy(pol)]
+    model_checkpoints = [deepcopy(policy)]
 
     # make optimizer
-    optimizer = torch.optim.Adam(pol.net.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(policy.net.parameters(), lr=lr)
 
     # get non-terminal states
     non_terminal_states = [state for state in mdp.states if not mdp.is_terminal(state)]
@@ -557,14 +581,8 @@ def policy_gradient(
     # training loop
     for i in range(1, iterations + 1):
 
-        # make some empty lists for logging.
-        buffer = {
-            "states": [],
-            "actions": [],
-            "weights": [],
-            "ep_rets": [],
-            "ep_lens": [],
-        }
+        # a buffer for storing intermediate values
+        buffer = PolicyGradientBuffer()
 
         # reset episode-specific variables
         if use_random_init_state:
@@ -576,26 +594,28 @@ def policy_gradient(
         # collect experience by acting in the mdp
         while True:
             # save visited state
-            buffer["states"].append(deepcopy(state))
+            buffer.states.append(deepcopy(state))
 
             # call model to get next action
-            action = pol.get_action(state=torch.as_tensor(state, dtype=torch.float32))
+            action = policy.get_action(
+                state=torch.as_tensor(state, dtype=torch.float32)
+            )
 
             # execute action in the environment
             state, reward, done = mdp.execute_action(state=state, action=action)
 
             # save action, reward
-            buffer["actions"].append(action)
+            buffer.actions.append(action)
             episode_rewards.append(reward)
 
             if done:
                 # if episode is over, record info about episode
                 episode_return = sum(episode_rewards)
                 episode_length = len(episode_rewards)
-                buffer["ep_rets"].append(episode_return)
-                buffer["ep_lens"].append(episode_length)
+                buffer.episode_returns.append(episode_return)
+                buffer.episode_lengths.append(episode_length)
                 # the weight for each logprob(a|s) is R(tau)
-                buffer["weights"] += [episode_return] * episode_length
+                buffer.weights += [episode_return] * episode_length
 
                 # reset episode-specific variables
                 if use_random_init_state:
@@ -607,16 +627,16 @@ def policy_gradient(
                 episode_rewards = []
 
                 # end experience loop if we have enough of it
-                if len(buffer["states"]) > batch_size:
+                if len(buffer.states) > batch_size:
                     break
 
         # compute the loss
-        logp = pol.get_log_prob(
-            states=torch.as_tensor(buffer["states"], dtype=torch.float32),
-            actions=torch.as_tensor(buffer["actions"], dtype=torch.int32),
+        logp = policy.get_log_prob(
+            states=torch.as_tensor(buffer.states, dtype=torch.float32),
+            actions=torch.as_tensor(buffer.actions, dtype=torch.int32),
         )
         batch_loss = -(
-            logp * torch.as_tensor(buffer["weights"], dtype=torch.float32)
+            logp * torch.as_tensor(buffer.weights, dtype=torch.float32)
         ).mean()
 
         # take a single policy gradient update step
@@ -627,31 +647,30 @@ def policy_gradient(
         # logging
         if verbose:
             print(
-                "iteration: %3d;  return: %.3f;  episode_length: %.3f"
-                % (i, np.mean(buffer["ep_rets"]), np.mean(buffer["ep_lens"]))
+                f"iteration: {i:3d};  return: {buffer.mean_episode_return():.3f};  episode_length: {buffer.mean_episode_length():.3f}"
             )
         if return_history:
-            model_checkpoints.append(deepcopy(pol))
+            model_checkpoints.append(deepcopy(policy))
     if return_history:
         return model_checkpoints
-    return pol
+    return policy
 
 
-def derive_deterministic_policy(mdp: MDP, pol: CategorialPolicy) -> Dict[Any, Any]:
+def derive_deterministic_policy(mdp: MDP, policy: CategorialPolicy) -> Dict[Any, Any]:
     """Compute the best policy for an MDP given the stochastic policy.
 
     Args:
         mdp: The underlying MDP.
-        pol: The stochastic policy.
+        policy: The stochastic policy.
 
     Returns:
-        Policy, i.e. mapping from state to action.
+        Deterministic policy, i.e. mapping from state to action.
     """
     pi = {}
     for state in mdp.get_states():
         if mdp.is_terminal(state):
             continue
-        pi[state] = pol.get_action(
+        pi[state] = policy.get_action(
             state=torch.as_tensor(state, dtype=torch.float32), deterministic=True
         )
     return pi

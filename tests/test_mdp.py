@@ -163,7 +163,7 @@ def test_policy_gradient(return_history):
     )
     assert policy_gradient(
         mdp=mdp,
-        pol=pol,
+        policy=pol,
         lr=1e2,
         iterations=5,
         batch_size=5000,
