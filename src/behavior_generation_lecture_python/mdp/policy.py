@@ -1,6 +1,7 @@
+from typing import List
+
 import torch
 import torch.nn as nn
-from typing import List
 from torch.distributions.categorical import Categorical
 
 

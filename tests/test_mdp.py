@@ -1,6 +1,5 @@
 import pytest
 
-from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
 from behavior_generation_lecture_python.mdp.mdp import (
     GRID_MDP_DICT,
     MDP,
@@ -10,11 +9,12 @@ from behavior_generation_lecture_python.mdp.mdp import (
     derive_policy,
     expected_utility_of_action,
     greedy_value_estimate_for_state,
+    policy_gradient,
     q_learning,
     random_action,
     value_iteration,
-    policy_gradient,
 )
+from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
 
 
 def test_init_mdp():

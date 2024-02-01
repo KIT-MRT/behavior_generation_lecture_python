@@ -1,8 +1,10 @@
 import math
-import torch
-import numpy as np
 from copy import deepcopy
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
+import numpy as np
+import torch
+
 from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
 
 SIMPLE_MDP_DICT = {
