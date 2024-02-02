@@ -635,9 +635,7 @@ def policy_gradient(
             states=torch.tensor(buffer.states, dtype=torch.float),
             actions=torch.tensor(buffer.actions, dtype=torch.long),
         )
-        batch_loss = -(
-            logp * torch.tensor(buffer.weights, dtype=torch.float)
-        ).mean()
+        batch_loss = -(logp * torch.tensor(buffer.weights, dtype=torch.float)).mean()
 
         # take a single policy gradient update step
         optimizer.zero_grad()
