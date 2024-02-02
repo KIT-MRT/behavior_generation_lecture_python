@@ -598,7 +598,7 @@ def policy_gradient(
 
             # call model to get next action
             action = policy.get_action(
-                state=torch.as_tensor(state, dtype=torch.float32)
+                state=torch.tensor(state, dtype=torch.float32)
             )
 
             # execute action in the environment
