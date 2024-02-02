@@ -632,11 +632,11 @@ def policy_gradient(
 
         # compute the loss
         logp = policy.get_log_prob(
-            states=torch.as_tensor(buffer.states, dtype=torch.float32),
-            actions=torch.as_tensor(buffer.actions, dtype=torch.int32),
+            states=torch.tensor(buffer.states, dtype=torch.float),
+            actions=torch.tensor(buffer.actions, dtype=torch.long),
         )
         batch_loss = -(
-            logp * torch.as_tensor(buffer.weights, dtype=torch.float32)
+            logp * torch.tensor(buffer.weights, dtype=torch.float)
         ).mean()
 
         # take a single policy gradient update step
