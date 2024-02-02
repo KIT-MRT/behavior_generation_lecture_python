@@ -29,7 +29,7 @@ class CategorialPolicy:
         torch.manual_seed(1337)
         self.net = multi_layer_perceptron(sizes=sizes)
         self.actions = actions
-        self._actions_tensor = torch.as_tensor(actions, dtype=torch.float32).view(
+        self._actions_tensor = torch.tensor(actions, dtype=torch.long).view(
             len(actions), -1
         )
 
