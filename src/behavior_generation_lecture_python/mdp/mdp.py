@@ -1,8 +1,13 @@
+"""This module contains the Markov Decision Process, value iteration, Q learning and policy gradient."""
+
 import math
-import torch
-import numpy as np
 from copy import deepcopy
+from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
+
+import numpy as np
+import torch
+
 from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
 
 SIMPLE_MDP_DICT = {
@@ -56,6 +61,8 @@ HIGHWAY_MDP_DICT = {
 
 
 class MDP:
+    """A Markov decision process."""
+
     def __init__(
         self,
         states: Set[Any],
@@ -95,7 +102,7 @@ class MDP:
             for action in self.actions:
                 if (state, action) not in transition_probabilities:
                     continue
-                total_prob = 0
+                total_prob = 0.0
                 for prob, next_state in transition_probabilities[(state, action)]:
                     assert (
                         next_state in self.states
@@ -119,9 +126,7 @@ class MDP:
         """Get the set of actions available in a certain state, returns [None] for terminal states."""
         if self.is_terminal(state):
             return {None}
-        return set(
-            [a for a in self.actions if (state, a) in self.transition_probabilities]
-        )
+        return {a for a in self.actions if (state, a) in self.transition_probabilities}
 
     def get_reward(self, state) -> float:
         """Get the reward for a specific state."""
@@ -160,14 +165,19 @@ class MDP:
         return new_state, reward, terminal
 
 
+GridState = Tuple[int, int]
+
+
 class GridMDP(MDP):
+    """A Markov decision process on a grid."""
+
     def __init__(
         self,
         grid: List[List[Union[float, None]]],
-        initial_state: Tuple[int, int],
-        terminal_states: Set[Tuple[int, int]],
+        initial_state: GridState,
+        terminal_states: Set[GridState],
         transition_probabilities_per_action: Dict[
-            Tuple[int, int], List[Tuple[float, Tuple[int, int]]]
+            GridState, List[Tuple[float, GridState]]
         ],
         restrict_actions_to_available_states: Optional[bool] = False,
     ) -> None:
@@ -195,7 +205,9 @@ class GridMDP(MDP):
             for y in range(rows):
                 if grid[y][x] is not None:
                     states.add((x, y))
-                    reward[(x, y)] = grid[y][x]
+                    reward_xy = grid[y][x]
+                    assert reward_xy is not None
+                    reward[(x, y)] = reward_xy
 
         transition_probabilities = {}
         for state in states:
@@ -269,8 +281,11 @@ class GridMDP(MDP):
         return state
 
 
+StateValueTable = Dict[Any, float]
+
+
 def expected_utility_of_action(
-    mdp: MDP, state: Any, action: Any, utility_of_states: Dict[Any, float]
+    mdp: MDP, state: Any, action: Any, utility_of_states: StateValueTable
 ) -> float:
     """Compute the expected utility of taking an action in a state.
 
@@ -292,7 +307,7 @@ def expected_utility_of_action(
     )
 
 
-def derive_policy(mdp: MDP, utility_of_states: Dict[Any, float]) -> Dict[Any, Any]:
+def derive_policy(mdp: MDP, utility_of_states: StateValueTable) -> Dict[Any, Any]:
     """Compute the best policy for an MDP given the utility of the states.
 
     Args:
@@ -319,7 +334,7 @@ def value_iteration(
     epsilon: float,
     max_iterations: int,
     return_history: Optional[bool] = False,
-) -> Union[Dict[Any, float], List[Dict[Any, float]]]:
+) -> Union[StateValueTable, List[StateValueTable]]:
     """Derive a utility estimate by means of value iteration.
 
     Args:
@@ -335,11 +350,11 @@ def value_iteration(
         The final utility estimate, if return_history is false. The
         history of utility estimates as list, if return_history is true.
     """
-    utility = {state: 0 for state in mdp.get_states()}
+    utility = {state: 0.0 for state in mdp.get_states()}
     utility_history = [utility.copy()]
     for _ in range(max_iterations):
         utility_old = utility.copy()
-        max_delta = 0
+        max_delta = 0.0
         for state in mdp.get_states():
             utility[state] = max(
                 expected_utility_of_action(
@@ -357,8 +372,11 @@ def value_iteration(
     raise RuntimeError(f"Did not converge in {max_iterations} iterations")
 
 
+QTable = Dict[Tuple[Any, Any], float]
+
+
 def best_action_from_q_table(
-    *, state: Any, available_actions: Set[Any], q_table: Dict[Tuple[Any, Any], float]
+    *, state: Any, available_actions: Set[Any], q_table: QTable
 ) -> Any:
     """Derive the best action from a Q table.
 
@@ -370,9 +388,9 @@ def best_action_from_q_table(
     Returns:
         The best action according to the Q table.
     """
-    available_actions = list(available_actions)
-    values = np.array([q_table[(state, action)] for action in available_actions])
-    action = available_actions[np.argmax(values)]
+    available_actions_list = list(available_actions)
+    values = np.array([q_table[(state, action)] for action in available_actions_list])
+    action = available_actions_list[np.argmax(values)]
     return action
 
 
@@ -385,15 +403,13 @@ def random_action(available_actions: Set[Any]) -> Any:
     Returns:
         A random action.
     """
-    available_actions = list(available_actions)
-    num_actions = len(available_actions)
+    available_actions_list = list(available_actions)
+    num_actions = len(available_actions_list)
     choice = np.random.choice(num_actions)
-    return available_actions[choice]
+    return available_actions_list[choice]
 
 
-def greedy_value_estimate_for_state(
-    *, q_table: Dict[Tuple[Any, Any], float], state: Any
-) -> float:
+def greedy_value_estimate_for_state(*, q_table: QTable, state: Any) -> float:
     """Compute the greedy (best possible) value estimate for a state from the Q table.
 
     Args:
@@ -406,7 +422,7 @@ def greedy_value_estimate_for_state(
     available_actions = [
         state_action[1] for state_action in q_table.keys() if state_action[0] == state
     ]
-    return max([q_table[(state, action)] for action in available_actions])
+    return max(q_table[state, action] for action in available_actions)
 
 
 def q_learning(
@@ -416,7 +432,7 @@ def q_learning(
     epsilon: float,
     iterations: int,
     return_history: Optional[bool] = False,
-) -> Dict[Tuple[Any, Any], float]:
+) -> Union[QTable, List[QTable]]:
     """Derive a value estimate for state-action pairs by means of Q learning.
 
     Args:
@@ -491,10 +507,29 @@ def q_learning(
     }
 
 
+@dataclass
+class PolicyGradientBuffer:
+    """Buffer for the policy gradient method."""
+
+    states: List[Any] = field(default_factory=list)
+    actions: List[Any] = field(default_factory=list)
+    weights: List[float] = field(default_factory=list)
+    episode_returns: List[float] = field(default_factory=list)
+    episode_lengths: List[int] = field(default_factory=list)
+
+    def mean_episode_return(self) -> float:
+        """Mean episode return."""
+        return float(np.mean(self.episode_returns))
+
+    def mean_episode_length(self) -> float:
+        """Mean episode length."""
+        return float(np.mean(self.episode_lengths))
+
+
 def policy_gradient(
     *,
     mdp: MDP,
-    pol: CategorialPolicy,
+    policy: CategorialPolicy,
     lr: float = 1e-2,
     iterations: int = 50,
     batch_size: int = 5000,
@@ -518,7 +553,7 @@ def policy_gradient(
 
     Args:
         mdp: The underlying MDP.
-        pol: The stochastic policy to be trained.
+        policy: The stochastic policy to be trained.
         lr: Learning rate.
         iterations: Number of iterations.
         batch_size: Number of samples generated for each policy update.
@@ -535,10 +570,10 @@ def policy_gradient(
     torch.manual_seed(1337)
 
     # add untrained model to model_checkpoints
-    model_checkpoints = [deepcopy(pol)]
+    model_checkpoints = [deepcopy(policy)]
 
     # make optimizer
-    optimizer = torch.optim.Adam(pol.net.parameters(), lr=lr)
+    optimizer = torch.optim.Adam(policy.net.parameters(), lr=lr)
 
     # get non-terminal states
     non_terminal_states = [state for state in mdp.states if not mdp.is_terminal(state)]
@@ -546,14 +581,8 @@ def policy_gradient(
     # training loop
     for i in range(1, iterations + 1):
 
-        # make some empty lists for logging.
-        buffer = {
-            "states": [],
-            "actions": [],
-            "weights": [],
-            "ep_rets": [],
-            "ep_lens": [],
-        }
+        # a buffer for storing intermediate values
+        buffer = PolicyGradientBuffer()
 
         # reset episode-specific variables
         if use_random_init_state:
@@ -565,26 +594,28 @@ def policy_gradient(
         # collect experience by acting in the mdp
         while True:
             # save visited state
-            buffer["states"].append(deepcopy(state))
+            buffer.states.append(deepcopy(state))
 
             # call model to get next action
-            action = pol.get_action(state=torch.as_tensor(state, dtype=torch.float32))
+            action = policy.get_action(
+                state=torch.as_tensor(state, dtype=torch.float32)
+            )
 
             # execute action in the environment
             state, reward, done = mdp.execute_action(state=state, action=action)
 
             # save action, reward
-            buffer["actions"].append(action)
+            buffer.actions.append(action)
             episode_rewards.append(reward)
 
             if done:
                 # if episode is over, record info about episode
                 episode_return = sum(episode_rewards)
                 episode_length = len(episode_rewards)
-                buffer["ep_rets"].append(episode_return)
-                buffer["ep_lens"].append(episode_length)
+                buffer.episode_returns.append(episode_return)
+                buffer.episode_lengths.append(episode_length)
                 # the weight for each logprob(a|s) is R(tau)
-                buffer["weights"] += [episode_return] * episode_length
+                buffer.weights += [episode_return] * episode_length
 
                 # reset episode-specific variables
                 if use_random_init_state:
@@ -596,16 +627,16 @@ def policy_gradient(
                 episode_rewards = []
 
                 # end experience loop if we have enough of it
-                if len(buffer["states"]) > batch_size:
+                if len(buffer.states) > batch_size:
                     break
 
         # compute the loss
-        logp = pol.get_log_prob(
-            states=torch.as_tensor(buffer["states"], dtype=torch.float32),
-            actions=torch.as_tensor(buffer["actions"], dtype=torch.int32),
+        logp = policy.get_log_prob(
+            states=torch.as_tensor(buffer.states, dtype=torch.float32),
+            actions=torch.as_tensor(buffer.actions, dtype=torch.int32),
         )
         batch_loss = -(
-            logp * torch.as_tensor(buffer["weights"], dtype=torch.float32)
+            logp * torch.as_tensor(buffer.weights, dtype=torch.float32)
         ).mean()
 
         # take a single policy gradient update step
@@ -616,31 +647,30 @@ def policy_gradient(
         # logging
         if verbose:
             print(
-                "iteration: %3d;  return: %.3f;  episode_length: %.3f"
-                % (i, np.mean(buffer["ep_rets"]), np.mean(buffer["ep_lens"]))
+                f"iteration: {i:3d};  return: {buffer.mean_episode_return():.3f};  episode_length: {buffer.mean_episode_length():.3f}"
             )
         if return_history:
-            model_checkpoints.append(deepcopy(pol))
+            model_checkpoints.append(deepcopy(policy))
     if return_history:
         return model_checkpoints
-    return pol
+    return policy
 
 
-def derive_deterministic_policy(mdp: MDP, pol: CategorialPolicy) -> Dict[Any, Any]:
+def derive_deterministic_policy(mdp: MDP, policy: CategorialPolicy) -> Dict[Any, Any]:
     """Compute the best policy for an MDP given the stochastic policy.
 
     Args:
         mdp: The underlying MDP.
-        pol: The stochastic policy.
+        policy: The stochastic policy.
 
     Returns:
-        Policy, i.e. mapping from state to action.
+        Deterministic policy, i.e. mapping from state to action.
     """
     pi = {}
     for state in mdp.get_states():
         if mdp.is_terminal(state):
             continue
-        pi[state] = pol.get_action(
+        pi[state] = policy.get_action(
             state=torch.as_tensor(state, dtype=torch.float32), deterministic=True
         )
     return pi

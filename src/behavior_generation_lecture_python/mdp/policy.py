@@ -1,10 +1,13 @@
-import torch
-import torch.nn as nn
+"""This module contains the CategoricalPolicy implementation."""
+
 from typing import List
+
+import torch
+from torch import nn
 from torch.distributions.categorical import Categorical
 
 
-def mlp(sizes, activation=nn.ReLU, output_activation=nn.Identity):
+def multi_layer_perceptron(sizes, activation=nn.ReLU, output_activation=nn.Identity):
     """Returns a multi-layer perceptron"""
     mlp = nn.Sequential()
     for i in range(len(sizes) - 1):
@@ -20,7 +23,7 @@ class CategorialPolicy:
     def __init__(self, sizes: List[int], actions: List):
         assert sizes[-1] == len(actions)
         torch.manual_seed(1337)
-        self.net = mlp(sizes=sizes)
+        self.net = multi_layer_perceptron(sizes=sizes)
         self.actions = actions
         self._actions_tensor = torch.as_tensor(actions, dtype=torch.float32).view(
             len(actions), -1

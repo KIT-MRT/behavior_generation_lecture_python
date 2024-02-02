@@ -1,0 +1,52 @@
+[project]
+name = "behavior_generation_lecture_python"
+version = "0.0.2"
+description = "Python code for the respective lecture at KIT"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Organizers of the lecture 'Verhaltensgenerierung für Fahrzeuge' at KIT" }
+]
+maintainers = [
+  {name = "Maximilian Naumann", email = "maximilian.naumann@de.bosch.com" }
+]
+
+dependencies = [
+  "numpy",
+  "matplotlib>=2.2.4",
+  "scipy",
+  "jupyter",
+  "python-statemachine",
+  "torch"
+]
+
+[project.optional-dependencies]
+dev = [
+  "black[jupyter]==22.3.0",
+  "pytest",
+  "pytest-cov>=3.0.0",
+  "pylint",
+  "mypy",
+  "isort"
+]
+docs = [
+  "mkdocs-material",
+  "mkdocs-jupyter",
+  "mkdocstrings[python]>=0.18",
+  "mkdocs-gen-files",
+  "mkdocs-literate-nav",
+  "mkdocs-section-index"
+]
+
+[project.urls]  # Optional
+"Homepage" = "https://kit-mrt.github.io/behavior_generation_lecture_python/"
+"Bug Reports" = "hhttps://github.com/KIT-MRT/behavior_generation_lecture_python/issues"
+"Source" = "https://github.com/KIT-MRT/behavior_generation_lecture_python"
+
+[build-system]
+requires = ["setuptools>=64.0.0", "wheel", "pip>=21.3.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.isort]
+profile = "black"
