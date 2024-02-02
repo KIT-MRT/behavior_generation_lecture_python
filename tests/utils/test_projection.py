@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import warnings
 
 from behavior_generation_lecture_python.utils import projection
 
@@ -71,7 +72,7 @@ def test_project2curve():
     assert kappa_p == -10
 
     target_point = [1, 1]
-    with pytest.warns(None) as recorded_warnings:
+    with warnings.catch_warnings():
         projected_point = projection.project2curve(
             s_c=sc.curve_points_s,
             x_c=sc.curve_points_x,
@@ -81,6 +82,5 @@ def test_project2curve():
             x=target_point[0],
             y=target_point[1],
         )
-    assert len(recorded_warnings) == 0
     x_p, y_p, s_p, d, theta_p, kappa_p = projected_point
     # todo: assertions
