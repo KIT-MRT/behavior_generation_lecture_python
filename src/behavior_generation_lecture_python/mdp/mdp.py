@@ -597,9 +597,7 @@ def policy_gradient(
             buffer.states.append(deepcopy(state))
 
             # call model to get next action
-            action = policy.get_action(
-                state=torch.tensor(state, dtype=torch.float32)
-            )
+            action = policy.get_action(state=torch.tensor(state, dtype=torch.float32))
 
             # execute action in the environment
             state, reward, done = mdp.execute_action(state=state, action=action)
