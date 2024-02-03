@@ -33,10 +33,16 @@ jobs:
         run: mypy src/behavior_generation_lecture_python/mdp
 
       - name: test
-        run: pytest
+        run: |
+          export DISPLAY=:99
+          Xvfb :99 &
+          pytest
 
-      - name: check coverage # (less coverage required here since vizard is not tested)
-        run: pytest --cov=src --cov-fail-under=70
+      - name: check coverage
+        run: |
+          export DISPLAY=:99
+          Xvfb :99 &
+          pytest --cov=src --cov-fail-under=85
 
       - name: copy notebooks to docs folder
         run: cp -r notebooks/* docs/notebooks
