@@ -7,7 +7,11 @@ from torch import nn
 from torch.distributions.categorical import Categorical
 
 
-def multi_layer_perceptron(sizes, activation=nn.ReLU, output_activation=nn.Identity):
+def multi_layer_perceptron(
+    sizes: List[int],
+    activation: torch.nn.Module = nn.ReLU,
+    output_activation: torch.nn.Module = nn.Identity,
+):
     """Returns a multi-layer perceptron"""
     mlp = nn.Sequential()
     for i in range(len(sizes) - 1):
@@ -25,7 +29,7 @@ class CategorialPolicy:
         torch.manual_seed(1337)
         self.net = multi_layer_perceptron(sizes=sizes)
         self.actions = actions
-        self._actions_tensor = torch.as_tensor(actions, dtype=torch.float32).view(
+        self._actions_tensor = torch.tensor(actions, dtype=torch.long).view(
             len(actions), -1
         )
 

@@ -597,9 +597,7 @@ def policy_gradient(
             buffer.states.append(deepcopy(state))
 
             # call model to get next action
-            action = policy.get_action(
-                state=torch.as_tensor(state, dtype=torch.float32)
-            )
+            action = policy.get_action(state=torch.tensor(state, dtype=torch.float32))
 
             # execute action in the environment
             state, reward, done = mdp.execute_action(state=state, action=action)
@@ -632,12 +630,10 @@ def policy_gradient(
 
         # compute the loss
         logp = policy.get_log_prob(
-            states=torch.as_tensor(buffer.states, dtype=torch.float32),
-            actions=torch.as_tensor(buffer.actions, dtype=torch.int32),
+            states=torch.tensor(buffer.states, dtype=torch.float),
+            actions=torch.tensor(buffer.actions, dtype=torch.long),
         )
-        batch_loss = -(
-            logp * torch.as_tensor(buffer.weights, dtype=torch.float32)
-        ).mean()
+        batch_loss = -(logp * torch.tensor(buffer.weights, dtype=torch.float)).mean()
 
         # take a single policy gradient update step
         optimizer.zero_grad()
