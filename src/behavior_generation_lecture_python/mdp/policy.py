@@ -1,6 +1,6 @@
 """This module contains the CategoricalPolicy implementation."""
 
-from typing import List
+from typing import List, Type
 
 import torch
 from torch import nn
@@ -9,8 +9,8 @@ from torch.distributions.categorical import Categorical
 
 def multi_layer_perceptron(
     sizes: List[int],
-    activation: torch.nn.Module = nn.ReLU,
-    output_activation: torch.nn.Module = nn.Identity,
+    activation: Type[nn.Module] = nn.ReLU,
+    output_activation: Type[nn.Module] = nn.Identity,
 ):
     """Returns a multi-layer perceptron"""
     mlp = nn.Sequential()
