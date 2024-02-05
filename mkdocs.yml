@@ -58,8 +58,6 @@ plugins:
           rendering:
             show_if_no_docstring: true
             show_signature_annotations: true
-      watch:
-        - src
   - gen-files:
       scripts:
         - docs/gen_ref_pages.py

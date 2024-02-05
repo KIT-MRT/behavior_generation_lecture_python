@@ -3,7 +3,7 @@ name = "behavior_generation_lecture_python"
 version = "0.0.2"
 description = "Python code for the respective lecture at KIT"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 license = {file = "LICENSE"}
 authors = [
   {name = "Organizers of the lecture 'Verhaltensgenerierung für Fahrzeuge' at KIT" }
@@ -17,7 +17,8 @@ dependencies = [
   "matplotlib>=2.2.4",
   "scipy",
   "jupyter",
-  "python-statemachine"
+  "python-statemachine",
+  "torch"
 ]
 
 [project.optional-dependencies]
