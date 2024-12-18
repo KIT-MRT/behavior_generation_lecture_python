@@ -21,13 +21,13 @@ jobs:
         run: uv sync --all-extras
 
       - name: Run ruff format
-        run: ruff format
+        run: uv run ruff format
 
       - name: Run ruff linter for mdp folder
-        run: ruff check src/behavior_generation_lecture_python/mdp
+        run: uv run ruff check src/behavior_generation_lecture_python/mdp
 
       - name: Run mypy for mdp folder
-        run: mypy src/behavior_generation_lecture_python/mdp
+        run: uv run mypy src/behavior_generation_lecture_python/mdp
 
       - name: Test
         run: |
