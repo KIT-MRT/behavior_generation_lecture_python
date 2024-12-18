@@ -17,6 +17,9 @@ jobs:
         with:
           version: "0.5.10"
 
+      - name: Install tkinter for GUI
+        run: sudo apt install python3-tk -y
+
       - name: Set up env
         run: uv sync --all-extras
 

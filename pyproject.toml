@@ -40,7 +40,7 @@ docs = [
 
 [project.urls]  # Optional
 "Homepage" = "https://kit-mrt.github.io/behavior_generation_lecture_python/"
-"Bug Reports" = "hhttps://github.com/KIT-MRT/behavior_generation_lecture_python/issues"
+"Bug Reports" = "https://github.com/KIT-MRT/behavior_generation_lecture_python/issues"
 "Source" = "https://github.com/KIT-MRT/behavior_generation_lecture_python"
 
 [build-system]
