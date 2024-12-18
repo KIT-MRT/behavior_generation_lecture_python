@@ -28,7 +28,6 @@ def plot_vehicle(ax, x, y, psi, delta=0, length=4.899, width=2.094):
         value[:, 1] *= width_scale
 
     for key, value in geo.items():
-
         if key == "wheel1" or key == "wheel2":
             # deltaX = max(value[:, 0]) - min(value[:, 0])
             # deltaY = max(value[:, 1]) - min(value[:, 1])

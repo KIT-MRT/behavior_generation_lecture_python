@@ -3,7 +3,7 @@ name = "behavior_generation_lecture_python"
 version = "0.0.2"
 description = "Python code for the respective lecture at KIT"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [
   {name = "Organizers of the lecture 'Verhaltensgenerierung für Fahrzeuge' at KIT" }
@@ -18,17 +18,16 @@ dependencies = [
   "scipy",
   "jupyter",
   "python-statemachine",
-  "torch"
+  "torch",
+  "ruff>=0.8.3",
+  "ipykernel>=6.29.5",
 ]
 
 [project.optional-dependencies]
 dev = [
-  "black[jupyter]==22.3.0",
   "pytest",
   "pytest-cov>=3.0.0",
-  "pylint",
   "mypy",
-  "isort"
 ]
 docs = [
   "mkdocs-material",
@@ -48,5 +47,3 @@ docs = [
 requires = ["setuptools>=64.0.0", "wheel", "pip>=21.3.0"]
 build-backend = "setuptools.build_meta"
 
-[tool.isort]
-profile = "black"

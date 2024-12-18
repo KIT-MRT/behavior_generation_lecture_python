@@ -221,9 +221,9 @@ class GridMDP(MDP):
                     next_state_fn=self._next_state_deterministic,
                 )
                 if transition_probability_list:
-                    transition_probabilities[
-                        (state, action)
-                    ] = transition_probability_list
+                    transition_probabilities[(state, action)] = (
+                        transition_probability_list
+                    )
 
         super().__init__(
             states=states,
@@ -458,7 +458,6 @@ def q_learning(
     np.random.seed(1337)
 
     for _ in range(iterations):
-
         # available actions:
         avail_actions = mdp.get_actions(state)
 
@@ -580,7 +579,6 @@ def policy_gradient(
 
     # training loop
     for i in range(1, iterations + 1):
-
         # a buffer for storing intermediate values
         buffer = PolicyGradientBuffer()
 

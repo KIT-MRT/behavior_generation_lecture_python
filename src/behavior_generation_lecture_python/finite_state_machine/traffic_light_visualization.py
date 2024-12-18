@@ -3,7 +3,6 @@ import tkinter as tk
 
 class VisualizeTrafficLights:
     def __init__(self):
-
         self.windows = tk.Tk()
         self.windows.title("Traffic Light FSM")
         self.canvas = tk.Canvas(self.windows)

@@ -11,7 +11,6 @@ from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import
 
 @pytest.mark.parametrize("test_r,error_factor", [(10000, 1), (10, 0.5)])
 def test_lateral_control_riccati(test_r, error_factor):
-
     radius = 500
     vars_0 = [0.0, -radius, 0.0, 0.0, 0.0]
     v_0 = 33.0
