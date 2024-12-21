@@ -163,7 +163,12 @@ version = "0.0.2"
 source = { editable = "." }
 dependencies = [
     { name = "ipykernel" },
+    { name = "ipympl" },
+    { name = "ipython", version = "8.12.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "ipython", version = "8.30.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "ipywidgets" },
     { name = "jupyter" },
+    { name = "jupyterlab" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "python-statemachine" },
@@ -193,7 +198,11 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "ipykernel", specifier = ">=6.29.5" },
+    { name = "ipympl", specifier = ">=0.9.5" },
+    { name = "ipython", specifier = ">=8.12.3" },
+    { name = "ipywidgets", specifier = ">=8.1.5" },
     { name = "jupyter" },
+    { name = "jupyterlab", specifier = ">=4.3.3" },
     { name = "matplotlib", specifier = ">=2.2.4" },
     { name = "mkdocs-gen-files", marker = "extra == 'docs'" },
     { name = "mkdocs-jupyter", marker = "extra == 'docs'" },
@@ -1019,6 +1028,25 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e9/5c/67594cb0c7055dc50814b21731c22a601101ea3b1b50a9a1b090e11f5d0f/ipykernel-6.29.5.tar.gz", hash = "sha256:f093a22c4a40f8828f8e330a9c297cb93dcab13bd9678ded6de8e5cf81c56215", size = 163367 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/94/5c/368ae6c01c7628438358e6d337c19b05425727fbb221d2a3c4303c372f42/ipykernel-6.29.5-py3-none-any.whl", hash = "sha256:afdb66ba5aa354b09b91379bac28ae4afebbb30e8b39510c9690afb7a10421b5", size = 117173 },
+]
+
+[[package]]
+name = "ipympl"
+version = "0.9.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "ipython", version = "8.12.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "ipython", version = "8.30.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "ipywidgets" },
+    { name = "matplotlib" },
+    { name = "numpy" },
+    { name = "pillow", version = "10.4.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "pillow", version = "11.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "traitlets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3c/7b/7a7b76a237cc18d4c256093a812874f63c8bfda8cefa228c124f0ad2a9e0/ipympl-0.9.5.tar.gz", hash = "sha256:b702db4bd1138cee21ab3c731e1c1bc5c3efbfa81b9b42a1820f79122d946dc8", size = 58484552 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/84/a48fb6b478410700bb4470c79ec2f5dbb73d17cdc432b81e432fd1295bba/ipympl-0.9.5-py3-none-any.whl", hash = "sha256:ff14a357f43552ec92582eb8b2f76b844b469aa2fa76833f15ead7fa584c19fc", size = 516334 },
 ]
 
 [[package]]
