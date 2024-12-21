@@ -2,7 +2,7 @@ name: Continuous Integration
 
 on: 
   push: 
-    branches: [ main,feature/new_ci_cd ]
+    branches: [ main ]
   pull_request:
   schedule:
     - cron:  "0 3 * * 1" # Run every Monday 3 am
