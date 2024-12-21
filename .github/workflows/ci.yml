@@ -2,7 +2,7 @@ name: Continuous Integration
 
 on: 
   push: 
-    branches: [ main ]
+    branches: [ main,feature/new_ci_cd ]
   pull_request:
   schedule:
     - cron:  "0 3 * * 1" # Run every Monday 3 am
@@ -73,7 +73,7 @@ jobs:
           message: |
             ### :books: Docs
 
-            Created [https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/](temporary docs).
+            Created [temporary docs](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/).
           
 
 
