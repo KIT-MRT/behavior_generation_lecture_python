@@ -88,7 +88,7 @@ class Vizard(object):
             frames=self.frames,
             event_source=self.event_source,
             blit=blit,
-            save_count=self.max
+            save_count=self.max,
         )
 
         # Store plot supplies for future modification

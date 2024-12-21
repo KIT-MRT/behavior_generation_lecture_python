@@ -48,7 +48,7 @@ def main():
     def update(i, *fargs):
         [l.remove() for l in reversed(ax.lines[1:])]
         ax.plot(x[: i + 1], y[: i + 1], "b-", linewidth=0.5)
-        point1.set_data(x[i:i+1], y[i:i+1])
+        point1.set_data(x[i : i + 1], y[i : i + 1])
         pv.plot_vehicle(ax, x[i], y[i], psi[i], delta[i])
         for farg in fargs:
             print(farg)

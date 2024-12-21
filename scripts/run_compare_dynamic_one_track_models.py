@@ -58,7 +58,7 @@ def main():
     (point_r_lin,) = ax2.plot([], [], marker="o", color="blue", ms=3)
 
     def update(i, *fargs):
-        slice_ = slice(i+1,i+2)
+        slice_ = slice(i + 1, i + 2)
         [l.remove() for l in reversed(ax1.lines)]
         ax1.plot(x[: i + 1], y[: i + 1], "b-", linewidth=0.5)
         point1.set_data(x[slice_], y[slice_])
