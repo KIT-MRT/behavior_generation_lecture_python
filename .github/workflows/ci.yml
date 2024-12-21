@@ -48,7 +48,9 @@ jobs:
         run: cp -r notebooks/* docs/notebooks
 
       - name: Build docs
-        run: uv run mkdocs build
+        run: |
+          uv run ipython kernel install --user --name=behavior_generation_lecture
+          uv run mkdocs build
 
   deploy-pages:
     runs-on: ubuntu-latest
