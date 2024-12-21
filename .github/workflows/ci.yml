@@ -71,6 +71,8 @@ jobs:
       - name: Copy notebooks to docs folder
         run: cp -r notebooks/* docs/notebooks
 
-      - run: uv run mkdocs gh-deploy --force
+      - run: |
+          uv run ipython kernel install --user --name=behavior_generation_lecture
+          uv run mkdocs gh-deploy --force
 
 
