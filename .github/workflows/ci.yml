@@ -1,4 +1,5 @@
 name: Continuous Integration
+
 on: 
   push: 
     branches: [ main ]
@@ -6,12 +7,12 @@ on:
   schedule:
     - cron:  "0 3 * * 1" # Run every Monday 3 am
 
-permissions:
-  pull-requests: write
-
 jobs:
   ci:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
