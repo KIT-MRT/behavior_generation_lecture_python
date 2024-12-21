@@ -53,6 +53,7 @@ jobs:
 
       - name: Build PR docs (including running the notebooks)
         run: |
+          sed -i "s/^site_name:.*$/site_name: 'Behavior Generation Lecture - tmp docs for PR ${{ github.event.pull_request.number }}'/" mkdocs.yml
           uv run ipython kernel install --user --name=behavior_generation_lecture
           uv run mkdocs build --site-dir site/pr-${{ github.event.pull_request.number }}
 
