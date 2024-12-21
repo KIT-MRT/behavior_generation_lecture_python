@@ -59,7 +59,7 @@ def make_plot_policy_step_function(columns, rows, policy_over_time, show=True):
         data = policy_over_time[iteration]
         for row in range(rows):
             for col in range(columns):
-                if not (col, row) in data:
+                if (col, row) not in data:
                     continue
                 x = col + 0.5
                 y = row + 0.5
