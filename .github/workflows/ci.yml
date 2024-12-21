@@ -6,6 +6,9 @@ on:
   schedule:
     - cron:  "0 3 * * 1" # Run every Monday 3 am
 
+permissions:
+  pull-requests: write
+
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -62,10 +65,15 @@ jobs:
           publish_branch: gh-pages
           keep_files: true # Retain other content on gh-pages
 
-      - name: Add PR comment with preview link
+      - name: Add PR note
         if: github.event_name == 'pull_request'
-        run: |
-            echo "Deployed [https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/](temporary docs)."
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          message: |
+            ### :books: Docs
+
+            Created [https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/](temporary docs).
+          
 
 
 
