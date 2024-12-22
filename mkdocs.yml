@@ -45,6 +45,7 @@ nav:
       - Decision Making: 
           - Value Iteration: notebooks/mdp_value_iteration.ipynb
           - Q-Learning: notebooks/mdp_q_learning.ipynb
+          - Policy Gradient: notebooks/mdp_policy_gradient.ipynb
   - API Documentation (partial): reference/
 
 plugins:
