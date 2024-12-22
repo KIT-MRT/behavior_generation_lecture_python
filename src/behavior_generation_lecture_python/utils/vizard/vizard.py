@@ -88,6 +88,7 @@ class Vizard(object):
             frames=self.frames,
             event_source=self.event_source,
             blit=blit,
+            save_count=self.max,
         )
 
         # Store plot supplies for future modification
@@ -300,16 +301,16 @@ class Vizard(object):
         # Create controls
         controls = self.VizardControls()
         controls.button_stop = matplotlib.widgets.Button(
-            ax_buttons[0], label="\U000025A0"
+            ax_buttons[0], label="\U000025a0"
         )
         controls.button_playpause = matplotlib.widgets.Button(
-            ax_buttons[1], label="\U000025B6"
+            ax_buttons[1], label="\U000025b6"
         )
         controls.button_oneback = matplotlib.widgets.Button(
-            ax_buttons[2], label="\U000029CF"
+            ax_buttons[2], label="\U000029cf"
         )
         controls.button_oneforward = matplotlib.widgets.Button(
-            ax_buttons[3], label="\U000029D0"
+            ax_buttons[3], label="\U000029d0"
         )
         controls.slider = matplotlib.widgets.Slider(
             ax_slider,
@@ -377,9 +378,9 @@ class Vizard(object):
         """
         label_text = label
         if label == "run":
-            label_text = "\U000025B6"
+            label_text = "\U000025b6"
         elif label == "pause":
-            label_text = "\U0000275A\U0000275A"
+            label_text = "\U0000275a\U0000275a"
 
         if controls:
             # Set label only for button in given controls class

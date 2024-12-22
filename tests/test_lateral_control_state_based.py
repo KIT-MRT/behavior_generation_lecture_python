@@ -6,7 +6,6 @@ from behavior_generation_lecture_python.utils.projection import project2curve
 
 
 def test_lateral_control_state_based():
-
     radius = 20
     vars_0 = [0.1, -radius, 0.0]
     curve = ref.generate_reference_curve(

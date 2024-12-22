@@ -4,7 +4,6 @@ from behavior_generation_lecture_python.graph_search.a_star import Graph, Node
 
 
 def main():
-
     nodes_list = [
         ["HH", 170, 620, ["H", "B"]],
         ["H", 150, 520, ["B", "L", "F", "HH"]],

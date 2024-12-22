@@ -25,8 +25,8 @@ def test_buttons_up_down():
     (point2,) = ax2.plot([], [], marker="x", color="crimson", ms=15)
 
     def update(i, *fargs):
-        point1.set_data(t[i], sin_t[i])
-        point2.set_data(t[i], sin_t[i])
+        point1.set_data(t[i : i + 1], sin_t[i : i + 1])
+        point2.set_data(t[i : i + 1], sin_t[i : i + 1])
         for farg in fargs:
             print(farg)
 

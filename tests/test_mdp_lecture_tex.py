@@ -46,23 +46,21 @@ def rewards_to_tex(mdp: MDP, node_property: str = "") -> str:
 
 
 def expected_utilities_to_tex(mdp: MDP, utility: dict) -> str:
-
     exp_util = {}
     for s in sorted(mdp.get_states()):
         for a in sorted(mdp.get_actions(s)):
             if not a:
                 continue
-            exp_util[
-                tuple(np.array(s) + 0.35 * np.array(a))
-            ] = expected_utility_of_action(
-                action=a, state=s, utility_of_states=utility, mdp=mdp
+            exp_util[tuple(np.array(s) + 0.35 * np.array(a))] = (
+                expected_utility_of_action(
+                    action=a, state=s, utility_of_states=utility, mdp=mdp
+                )
             )
 
     return values_to_tex(exp_util, node_property="[scale=0.8]")
 
 
 def best_policy_to_tex_arrows(mdp: MDP, utility: dict):
-
     source_dest_list = []
     policy = derive_policy(mdp=mdp, utility_of_states=utility)
     for s in sorted(mdp.get_states()):
@@ -105,7 +103,6 @@ GRID_MDP_TRUE_UTILITY_TEX = r"""\node at (0.5, 0.5) {$0.745$};
 
 
 def test_latex_value_over_time():
-
     grid_mdp = GridMDP(**GRID_MDP_DICT)
     assert GRID_MPD_REWARDS_TEX == rewards_to_tex(grid_mdp)
 
@@ -152,7 +149,6 @@ GRID_MDP_EXPECTED_UTILITIES_PER_ACTION_TEX = r"""\node[scale=0.8] at (0.15000000
 
 
 def test_latex_expected_utility():
-
     grid_mdp = GridMDP(**GRID_MDP_DICT)
 
     utility = value_iteration(grid_mdp, epsilon=0.0001, max_iterations=30)
@@ -347,7 +343,6 @@ HIGHWAY_MDP_LC_R_0DOT4_OPTIMAL_POLICY_ARROWS_TEX = r"""\draw[->,color=blue] (0.3
 
 
 def test_latex_value_over_time_highway():
-
     highway_mdp = GridMDP(**HIGHWAY_MDP_DICT)
     rewards_tex = rewards_to_tex(highway_mdp)
     print(rewards_tex)

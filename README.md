@@ -1,8 +1,9 @@
 # Python Code for the Lecture "Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles) at KIT
 
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![GitHub CI](https://github.com/KIT-MRT/behavior_generation_lecture_python/actions/workflows/ci.yml/badge.svg) 
 ![License](https://img.shields.io/github/license/kit-mrt/behavior_generation_lecture_python)
-![Code Style](https://img.shields.io/badge/code%20style-black-000000.svg)
 
 This repository contains the python code for the lecture ["Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles)](https://www.mrt.kit.edu/lehre_WS_Verhaltensgenerierung_Fahrzeuge.php) at KIT.
 It is targeted towards both, exemplifying the content of the lecture, and giving a brief introduction to software development. (Please bare with us, the code is largely ported from matlab.)
@@ -11,21 +12,25 @@ An API documentation for new parts of the code and exemplary jupyter notebooks c
 
 ## Preparing the environment
 
-We encourage the usage of [conda](https://conda.io/) or [virtualenv](https://virtualenv.pypa.io) instead of installing packages to your system directly.
+We use [`uv`](https://docs.astral.sh/uv/) as package and project manager. Having `uv` installed, run
 
-Having activated your environment
+```sh
+# clone this repo
+git clone https://github.com/KIT-MRT/behavior_generation_lecture_python.git
 
-- install this package in editable mode: `pip install --editable .`
+# change into the repo folder
+cd behavior_generation_lecture_python
+
+# set up a virtual env and install the requirements
+uv sync
+```
 
 <details>
-<summary>Making venv kernels available to jupyter?</summary>
+<summary>Making uv kernels available to jupyter?</summary>
 <br>
 <ul>
-<li>from without the venv, install ipykernel <code>pip install --user ipykernel</code></li>
-<li>list the current venvs available in jupyter: <code>jupyter kernelspec list</code> (your venv is not yet in there)</li>
-<li>activate the venv <code>source activate venv-name</code></li>
-<li>add the venv to the kernel list: <code>python -m ipykernel install --user --name=venv-name-for-jupyter</code>, where <code>venv-name-for-jupyter</code> can but must not match the name of the activated venv</li>
-<li>check that the venv is in the list: <code>jupyter kernelspec list</code></li>
+<li>create a kernel <code>uv run ipython kernel install --user --name=behavior_generation_lecture</code></li>
+<li>run jupyter <code>uv run --with jupyter jupyter lab</code> and chose kernel <code>behavior_generation_lecture</code> in the browser
 </ul>
 </details>
 

@@ -58,16 +58,17 @@ def main():
     (point_r_lin,) = ax2.plot([], [], marker="o", color="blue", ms=3)
 
     def update(i, *fargs):
+        slice_ = slice(i + 1, i + 2)
         [l.remove() for l in reversed(ax1.lines)]
         ax1.plot(x[: i + 1], y[: i + 1], "b-", linewidth=0.5)
-        point1.set_data(x[i + 1], y[i + 1])
+        point1.set_data(x[slice_], y[slice_])
         pv.plot_vehicle(ax1, x[i], y[i], psi[i], delta_vals[i])
 
-        point_delta.set_data(timesteps[i + 1], delta_vals[i + 1])
-        point_beta.set_data(timesteps[i + 1], beta[i + 1])
-        point_r.set_data(timesteps[i + 1], r[i + 1])
-        point_beta_lin.set_data(timesteps[i + 1], beta_lin[i + 1])
-        point_r_lin.set_data(timesteps[i + 1], r_lin[i + 1])
+        point_delta.set_data(timesteps[slice_], delta_vals[slice_])
+        point_beta.set_data(timesteps[slice_], beta[slice_])
+        point_r.set_data(timesteps[slice_], r[slice_])
+        point_beta_lin.set_data(timesteps[slice_], beta_lin[slice_])
+        point_r_lin.set_data(timesteps[slice_], r_lin[slice_])
         for farg in fargs:
             print(farg)
 
