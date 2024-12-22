@@ -1,0 +1,27 @@
+name: Continuous Deployment
+
+on: 
+  push: 
+    branches: [ main ]
+
+jobs:
+  deploy-docs:
+    runs-on: ubuntu-latest
+    concurrency: deploy-${{ github.ref }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.10"
+
+      - name: Set up env
+        run: uv sync --all-extras --frozen
+
+      - name: Copy notebooks to docs folder
+        run: cp -r notebooks/* docs/notebooks
+
+      - run: |
+          uv run ipython kernel install --user --name=behavior_generation_lecture
+          uv run mkdocs gh-deploy --force
