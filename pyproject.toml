@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [
-  {name = "Organizers of the lecture 'Verhaltensgenerierung für Fahrzeuge' at KIT" }
+  {name = "Organizers of the lecture 'Decision-Making and Motion Planning for Automated Driving' at KIT" }
 ]
 maintainers = [
   {name = "Maximilian Naumann", email = "maximilian.naumann@de.bosch.com" }

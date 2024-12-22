@@ -1,11 +1,11 @@
-# Python Code for the Lecture "Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles) at KIT
+# Python Code for the Lecture Decision-Making and Motion Planning for Automated Driving at KIT
 
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 ![GitHub CI](https://github.com/KIT-MRT/behavior_generation_lecture_python/actions/workflows/ci.yml/badge.svg) 
 ![License](https://img.shields.io/github/license/kit-mrt/behavior_generation_lecture_python)
 
-This repository contains the python code for the lecture ["Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles)](https://www.mrt.kit.edu/lehre_WS_Verhaltensgenerierung_Fahrzeuge.php) at KIT.
+This repository contains the python code for the lecture [Decision-Making and Motion Planning for Automated Driving](https://www.mrt.kit.edu/english/lehre_WS_Decision-Making_and_Motion_Planning_for_Automated_Driving.php) at KIT.
 It is targeted towards both, exemplifying the content of the lecture, and giving a brief introduction to software development. (Please bare with us, the code is largely ported from matlab.)
 
 An API documentation for new parts of the code and exemplary jupyter notebooks can be found in the [documentation](https://kit-mrt.github.io/behavior_generation_lecture_python/).

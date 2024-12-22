@@ -1,9 +1,9 @@
 # Project information
 site_name: Behavior Generation Lecture Python
 site_url:
-site_author: Organizers of the lecture "Verhaltensgenerierung für Fahrzeuge" at KIT
+site_author: Organizers of the lecture Decision-Making and Motion Planning for Automated Driving at KIT
 site_description: >-
-  Python Code for the Lecture "Verhaltensgenerierung für Fahrzeuge" (Behavior Generation for Vehicles) at KIT
+  Python Code for the Lecture Decision-Making and Motion Planning for Automated Driving at KIT
 
 # Repository
 repo_name: KIT-MRT/behavior_generation_lecture_python
@@ -11,7 +11,7 @@ repo_url: https://github.com/KIT-MRT/behavior_generation_lecture_python
 edit_uri: ""
 
 # Copyright
-copyright: Copyright &copy; 2015 - present Organizers of the lecture "Verhaltensgenerierung für Fahrzeuge" at KIT
+copyright: Copyright &copy; 2015 - present, Organizers of the lecture Decision-Making and Motion Planning for Automated Driving at KIT
 
 # Configuration
 theme:
