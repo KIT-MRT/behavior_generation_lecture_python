@@ -13,9 +13,9 @@ maintainers = [
 ]
 
 dependencies = [
-  "numpy",
+  "numpy>=1.26.0",
   "matplotlib>=2.2.4",
-  "scipy",
+  "scipy>=1.11.0",
   "jupyter",
   "python-statemachine",
   "torch",
