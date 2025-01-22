@@ -13,8 +13,16 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -48,6 +56,29 @@ jobs:
           Xvfb :99 &
           uv run pytest --cov=src --cov-fail-under=85
 
+  pr-docs:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: ci
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "0.5.10"
+
+      - name: Install tkinter for GUI
+        run: sudo apt install python3-tk -y
+
+      - name: Set up env
+        run: uv sync --all-extras --frozen
+
       - name: Copy notebooks to docs folder
         run: cp -r notebooks/* docs/notebooks
 
@@ -58,7 +89,6 @@ jobs:
           uv run mkdocs build --site-dir site/pr-${{ github.event.pull_request.number }}
 
       - name: Deploy PR docs
-        if: github.event_name == 'pull_request'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -68,14 +98,9 @@ jobs:
           keep_files: true # Retain other content on gh-pages
 
       - name: Add PR note
-        if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
             ### :books: Docs
 
             Created [temporary docs](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/pr-${{ github.event.pull_request.number }}/).
-          
-
-
-
