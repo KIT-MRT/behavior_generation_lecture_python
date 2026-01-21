@@ -3,7 +3,7 @@ name = "behavior_generation_lecture_python"
 version = "0.0.2"
 description = "Python code for the respective lecture at KIT"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.12, <3.13"
 license = {file = "LICENSE"}
 authors = [
   {name = "Organizers of the lecture 'Decision-Making and Motion Planning for Automated Driving' at KIT" }
