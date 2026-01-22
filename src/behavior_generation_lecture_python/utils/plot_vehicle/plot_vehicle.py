@@ -1,14 +1,26 @@
-import os
+"""Vehicle plotting utilities."""
 
-import matplotlib as mpl
+import os
+from typing import Any
+
+import matplotlib as mpl  # type: ignore[import-untyped]
 import numpy as np
-from matplotlib.patches import Polygon
+from matplotlib.axes import Axes  # type: ignore[import-untyped]
+from matplotlib.patches import Polygon  # type: ignore[import-untyped]
 
 NP_FILE = os.path.join(os.path.dirname(__file__), "f10.npy")
-geo = np.load(NP_FILE, allow_pickle=True)[()]
+geo: dict[str, Any] = np.load(NP_FILE, allow_pickle=True)[()]
 
 
-def plot_vehicle(ax, x, y, psi, delta=0, length=4.899, width=2.094):
+def plot_vehicle(
+    ax: Axes,
+    x: float,
+    y: float,
+    psi: float,
+    delta: float = 0,
+    length: float = 4.899,
+    width: float = 2.094,
+) -> None:
     global geo
 
     [p.remove() for p in reversed(ax.patches)]

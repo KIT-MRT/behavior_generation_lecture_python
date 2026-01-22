@@ -233,18 +233,14 @@ def get_control_params(
         ]
     )
     B_augmented = (
-        np.array(
-            [0, 0, B_lateral_dynamics[0], B_lateral_dynamics[1]]
-        )[np.newaxis]
+        np.array([0, 0, B_lateral_dynamics[0], B_lateral_dynamics[1]])[np.newaxis]
     ).transpose()
 
     # LQR state weighting matrix (identity = equal weight on all states)
     Q_state_weight = np.zeros((4, 4))
     np.fill_diagonal(Q_state_weight, 1)
 
-    lqr_solution = lqr(
-        A=A_augmented, B=B_augmented, Q=Q_state_weight, R=control_weight
-    )
+    lqr_solution = lqr(A=A_augmented, B=B_augmented, Q=Q_state_weight, R=control_weight)
 
     # Compute disturbance compensation gain (understeer gradient compensation)
     wheelbase = vehicle_params.l_h + vehicle_params.l_v
@@ -267,9 +263,7 @@ def get_control_params(
     )
 
 
-def lqr(
-    A: np.ndarray, B: np.ndarray, Q: np.ndarray, R: float
-) -> LQRSolution:
+def lqr(A: np.ndarray, B: np.ndarray, Q: np.ndarray, R: float) -> LQRSolution:
     """Solve the continuous-time Linear Quadratic Regulator (LQR) problem.
 
     Finds the optimal state-feedback gain K that minimizes the cost function:
@@ -428,12 +422,12 @@ class LateralControlRiccati:
             ActuatorDynamicsOutput with derivatives and actual steering angle
         """
         state = np.array([[steering_angle], [steering_rate]])
-        state_derivative = np.dot(
-            self.actuator_state_space.A, state
-        ) + np.dot(self.actuator_state_space.B, steering_command)
-        actual_steering = np.dot(
-            self.actuator_state_space.C, state
-        ) + np.dot(self.actuator_state_space.D, steering_command)
+        state_derivative = np.dot(self.actuator_state_space.A, state) + np.dot(
+            self.actuator_state_space.B, steering_command
+        )
+        actual_steering = np.dot(self.actuator_state_space.C, state) + np.dot(
+            self.actuator_state_space.D, steering_command
+        )
         return ActuatorDynamicsOutput(
             steering_angle_derivative=state_derivative[0, 0],
             steering_rate_derivative=state_derivative[1, 0],

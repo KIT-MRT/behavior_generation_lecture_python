@@ -92,9 +92,7 @@ class LateralControlStateBased:
         )
         return [self._compute_output(state) for state in state_trajectory]
 
-    def _compute_state_derivatives(
-        self, state: np.ndarray, time: float
-    ) -> np.ndarray:
+    def _compute_state_derivatives(self, state: np.ndarray, time: float) -> np.ndarray:
         """Compute state derivatives for the closed-loop system.
 
         Args:

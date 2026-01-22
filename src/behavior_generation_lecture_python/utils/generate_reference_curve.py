@@ -60,7 +60,9 @@ def generate_reference_curve(
     spline_y = interpolate.splrep(chord_lengths, y_points)
 
     # At every sampling_distance meter, evaluate spline...
-    arc_length_sampled = np.arange(0, max(chord_lengths) + sampling_distance, sampling_distance)
+    arc_length_sampled = np.arange(
+        0, max(chord_lengths) + sampling_distance, sampling_distance
+    )
     x_curve = interpolate.splev(arc_length_sampled, spline_x, der=0)
     y_curve = interpolate.splev(arc_length_sampled, spline_y, der=0)
 
@@ -84,9 +86,7 @@ def generate_reference_curve(
     heading = np.arctan2(dy_ds, dx_ds)
 
     # Curvature: kappa = (x'y'' - y'x'') / (x'^2 + y'^2)^(3/2)
-    curvature = (dx_ds * d2y_ds2 - dy_ds * d2x_ds2) / (
-        dx_ds**2 + dy_ds**2
-    ) ** (3 / 2)
+    curvature = (dx_ds * d2y_ds2 - dy_ds * d2x_ds2) / (dx_ds**2 + dy_ds**2) ** (3 / 2)
 
     return ReferenceCurve(
         arc_length=arc_length,

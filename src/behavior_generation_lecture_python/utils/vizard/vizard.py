@@ -1,24 +1,35 @@
+"""Animation control utilities for matplotlib figures."""
+
 import math
 import warnings
+from typing import Any, Callable, Optional
 
-import matplotlib.pyplot as plt
-import matplotlib.widgets
-from matplotlib.animation import FuncAnimation
-from mpl_toolkits.axes_grid1 import Divider, Size
-from mpl_toolkits.axes_grid1.mpl_axes import Axes
+import matplotlib.figure  # type: ignore[import-untyped]
+import matplotlib.pyplot as plt  # type: ignore[import-untyped]
+import matplotlib.widgets  # type: ignore[import-untyped]
+import numpy as np
+from matplotlib.animation import FuncAnimation  # type: ignore[import-untyped]
+from mpl_toolkits.axes_grid1 import Divider, Size  # type: ignore[import-untyped]
+from mpl_toolkits.axes_grid1.mpl_axes import Axes  # type: ignore[import-untyped]
 
 
-class Vizard(object):
+class Vizard:
     """Class around matplotlib's FuncAnimation for managing
     and controlling plot animations via GUI elements.
     """
 
-    def __init__(self, figure, update_func, time_vec):
+    def __init__(
+        self,
+        figure: matplotlib.figure.Figure,
+        update_func: Callable[..., Any],
+        time_vec: np.ndarray,
+    ) -> None:
         """Constructor
 
         Args:
-            interval: Update interval of animation's event source
-                (timer).
+            figure: Matplotlib figure to animate
+            update_func: Function called to update the plot at each frame
+            time_vec: Array of time values for the animation
         """
         self.plots = []
         self.func_animations = []
@@ -37,30 +48,37 @@ class Vizard(object):
 
         self.go_to(1)
 
-    class VizardPlot(object):
+    class VizardPlot:
         """Helper class for storing plot fixtures."""
 
-        def __init__(self):
-            self.figure = None
-            self.init_func = None
-            self.update_func = None
-            self.time_vec = None
-            self.anim = None
-            self.controls = None
+        def __init__(self) -> None:
+            self.figure: Optional[matplotlib.figure.Figure] = None
+            self.init_func: Optional[Callable[..., Any]] = None
+            self.update_func: Optional[Callable[..., Any]] = None
+            self.time_vec: Optional[np.ndarray] = None
+            self.anim: Optional[FuncAnimation] = None
+            self.controls: Optional["Vizard.VizardControls"] = None
 
-    class VizardControls(object):
+    class VizardControls:
         """Helper class for storing animation controls."""
 
-        def __init__(self):
-            self.button_stop = None
-            self.button_playpause = None
-            self.button_oneback = None
-            self.button_oneforward = None
-            self.slider = None
-            self.button_measure = None
-            self.text_measure = None
+        def __init__(self) -> None:
+            self.button_stop: Optional[matplotlib.widgets.Button] = None
+            self.button_playpause: Optional[matplotlib.widgets.Button] = None
+            self.button_oneback: Optional[matplotlib.widgets.Button] = None
+            self.button_oneforward: Optional[matplotlib.widgets.Button] = None
+            self.slider: Optional[matplotlib.widgets.Slider] = None
+            self.button_measure: Optional[matplotlib.widgets.Button] = None
+            self.text_measure: Optional[Any] = None
 
-    def register_plot(self, figure, update_func, time_vec, init_func=None, blit=False):
+    def register_plot(
+        self,
+        figure: matplotlib.figure.Figure,
+        update_func: Callable[..., Any],
+        time_vec: np.ndarray,
+        init_func: Optional[Callable[..., Any]] = None,
+        blit: bool = False,
+    ) -> None:
         """Create new FuncAnimation instance
         with given plot class.
         """

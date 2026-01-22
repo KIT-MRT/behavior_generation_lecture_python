@@ -184,7 +184,9 @@ class TestFeedbackLaw:
             beta=0,
             yaw_rate=0.1,
         )
-        assert steering < 0, "Positive yaw rate should cause negative steering correction"
+        assert (
+            steering < 0
+        ), "Positive yaw rate should cause negative steering correction"
 
 
 # Unit tests for lqr() function
@@ -193,9 +195,7 @@ class TestLQR:
     @pytest.fixture
     def sample_4d_system(self):
         """A sample 4D system similar to vehicle lateral control"""
-        A = np.array(
-            [[0, 1, 1, 0], [0, 0, 0, 1], [0, 0, -1, 0.5], [0, 0, 0.5, -1]]
-        )
+        A = np.array([[0, 1, 1, 0], [0, 0, 0, 1], [0, 0, -1, 0.5], [0, 0, 0.5, -1]])
         B = np.array([[0], [0], [1], [0.5]])
         Q = np.eye(4)
         return A, B, Q
@@ -215,14 +215,19 @@ class TestLQR:
         A, B, Q = sample_4d_system
         R = 1.0
         solution = cl.lqr(A, B, Q, R)
-        assert solution.feedback_gain.shape == (4,), "K should have 4 elements for 4D system"
+        assert solution.feedback_gain.shape == (
+            4,
+        ), "K should have 4 elements for 4D system"
 
     def test_lqr_riccati_solution_shape(self, sample_4d_system):
         """Verify riccati_solution has correct shape"""
         A, B, Q = sample_4d_system
         R = 1.0
         solution = cl.lqr(A, B, Q, R)
-        assert solution.riccati_solution.shape == (4, 4), "X should be 4x4 for 4D system"
+        assert solution.riccati_solution.shape == (
+            4,
+            4,
+        ), "X should be 4x4 for 4D system"
 
     def test_lqr_riccati_solution_symmetric(self, sample_4d_system):
         """Verify riccati_solution is symmetric"""
