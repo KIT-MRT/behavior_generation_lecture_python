@@ -1,15 +1,11 @@
-import time
 import warnings
-
 from statemachine import State, StateMachine
-
 from behavior_generation_lecture_python.finite_state_machine.traffic_light_visualization import (
     VisualizeTrafficLights,
 )
 
-
 class TrafficLightStateMachine(StateMachine):
-    """A traffic light machine"""
+    """A traffic light machine with non-blocking visualization"""
 
     veh_green = State("veh_green", initial=True)
     veh_yellow = State("veh_yellow")
@@ -33,40 +29,41 @@ class TrafficLightStateMachine(StateMachine):
         if start_mainloop:
             self.visu.mainloop()
 
+    def _schedule(self, delay_sec, callback):
+        """Helper to schedule an event without blocking the UI"""
+        self.visu.windows.after(int(delay_sec * 1000), callback)
+
     def on_enter_veh_yellow(self):
         self.visu.pedestrian_press_red()
-        time.sleep(3)
+        # Wait 3s before turning yellow (simulating reaction/delay phase)
+        self._schedule(3.0, self._phase_turn_yellow)
+
+    def _phase_turn_yellow(self):
         self.visu.vehicle_prepare_to_stop()
-        time.sleep(3)
-        self.send("veh_stop")
+        # Wait 3s before stopping
+        self._schedule(3.0, lambda: self.send("veh_stop"))
 
     def on_enter_veh_red_ped_red_1(self):
         self.visu.vehicle_stop()
-        time.sleep(2)
-        self.send("ped_go")
+        self._schedule(2.0, lambda: self.send("ped_go"))
 
     def on_enter_veh_red_ped_green(self):
         self.visu.pedestrian_go()
-        time.sleep(5)
-        self.send("ped_stop")
+        self._schedule(5.0, lambda: self.send("ped_stop"))
 
     def on_enter_veh_red_ped_red_2(self):
         self.visu.pedestrian_stop()
-        time.sleep(5)
-        self.send("veh_prepare_to_go")
+        self._schedule(5.0, lambda: self.send("veh_prepare_to_go"))
 
     def on_enter_veh_red_yellow(self):
         self.visu.vehicle_prepare_to_go()
-        time.sleep(2)
-        self.send("veh_go")
+        self._schedule(2.0, lambda: self.send("veh_go"))
 
     def on_enter_veh_green(self):
         self.visu.vehicle_go()
 
     def button_press(self, event):
-        if self.state == "veh_green":
+        if self.current_state.id == "veh_green":
             self.send("veh_prepare_to_stop")
         else:
-            warnings.warn(
-                "The button only has effect if currently vehicles have green."
-            )
+            warnings.warn("The button only works when vehicles have green.")
