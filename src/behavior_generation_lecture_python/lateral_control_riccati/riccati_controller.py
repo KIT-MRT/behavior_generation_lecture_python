@@ -1,8 +1,36 @@
+"""LQR-based feedback controller for lateral vehicle control."""
+
 import numpy as np
 
 
-def feedback_law(k_lqr, k_dist_comp, e_l, e_psi, kappa_r, beta, r):
-    x = np.array([e_l, e_psi, beta, r])
-    delta = np.dot(-k_lqr, x) + k_dist_comp * kappa_r
+def feedback_law(
+    k_lqr: np.ndarray,
+    k_dist_comp: float,
+    lateral_error: float,
+    heading_error: float,
+    reference_curvature: float,
+    beta: float,
+    yaw_rate: float,
+) -> float:
+    """Compute steering angle using LQR feedback with disturbance compensation.
 
-    return delta
+    The control law combines state feedback (LQR) with a feedforward term for
+    curvature compensation. The state vector consists of lateral error, heading
+    error, sideslip angle (beta), and yaw rate.
+
+    Args:
+        k_lqr: LQR gain vector [k_lateral, k_heading, k_beta, k_yaw_rate]
+        k_dist_comp: Disturbance compensation gain for curvature feedforward
+        lateral_error: Distance from vehicle to reference curve [m]
+        heading_error: Difference between vehicle heading and reference heading [rad]
+        reference_curvature: Curvature of the reference curve at the projection point [1/m]
+        beta: Vehicle sideslip angle [rad]
+        yaw_rate: Vehicle yaw rate [rad/s]
+
+    Returns:
+        Steering angle command [rad]
+    """
+    state = np.array([lateral_error, heading_error, beta, yaw_rate])
+    steering_angle = np.dot(-k_lqr, state) + k_dist_comp * reference_curvature
+
+    return steering_angle

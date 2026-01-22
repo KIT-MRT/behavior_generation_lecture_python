@@ -1,42 +1,115 @@
+"""Projection utilities for projecting points onto reference curves."""
+
 import warnings
+from dataclasses import dataclass
 
 import numpy as np
-from scipy import spatial
+from scipy import spatial  # type: ignore[import-untyped]
 
 import behavior_generation_lecture_python.utils.normalize_angle as na
 
 
-def project2curve_with_lookahead(s_c, x_c, y_c, theta_c, kappa_c, l_v, x, y, psi):
-    # Calculate look-ahead sensor point
-    x = x + l_v * np.cos(psi)
-    y = y + l_v * np.sin(psi)
+@dataclass
+class CurveProjection:
+    """Result of projecting a point onto a reference curve.
 
-    projection = project2curve(
-        s_c=s_c, x_c=x_c, y_c=y_c, theta_c=theta_c, kappa_c=kappa_c, x=x, y=y
-    )
+    Attributes:
+        x: X-coordinate of the projected point [m]
+        y: Y-coordinate of the projected point [m]
+        arc_length: Arc length along the curve at the projection point [m]
+        lateral_error: Signed distance from original point to curve [m],
+            positive if point is left of the curve
+        heading: Heading angle at the projection point [rad]
+        curvature: Curvature at the projection point [1/m]
+    """
 
-    # Simulate camera view
-    projection[4] = psi - projection[4]
+    x: float
+    y: float
+    arc_length: float
+    lateral_error: float
+    heading: float
+    curvature: float
 
-    return projection
 
+def project2curve_with_lookahead(
+    s_c: np.ndarray,
+    x_c: np.ndarray,
+    y_c: np.ndarray,
+    theta_c: np.ndarray,
+    kappa_c: np.ndarray,
+    lookahead_distance: float,
+    x: float,
+    y: float,
+    psi: float,
+) -> CurveProjection:
+    """Project a point with look-ahead onto a reference curve.
 
-def project2curve(s_c, x_c, y_c, theta_c, kappa_c, x, y):
-    """Project a point onto a curve (defined as a polygonal chain/ sequence of points/ line string)
+    Computes the look-ahead sensor point and projects it onto the curve.
+    The heading in the result is the heading error (vehicle heading - reference heading).
 
     Args:
-        s_c: Arc lenght of the curve
-        x_c: x-coordinates of the curve points
-        y_c: y-coordinates of the curve points
-        theta_c: heading at the curve points
-        kappa_c: curvature at the curve points
-        x: x-coordinates of the point to be projected
-        y: y-coordinates of the point to be projected
+        s_c: Arc length of the curve points
+        x_c: X-coordinates of the curve points
+        y_c: Y-coordinates of the curve points
+        theta_c: Heading at the curve points
+        kappa_c: Curvature at the curve points
+        lookahead_distance: Look-ahead distance from vehicle position [m]
+        x: X-coordinate of the vehicle
+        y: Y-coordinate of the vehicle
+        psi: Heading of the vehicle [rad]
 
     Returns:
-        properties of the projected point as list: x-coordinate,
-        y-coordinate, arc length, distance to original point, heading,
-        curvature
+        CurveProjection with heading representing heading error (psi - reference_heading)
+    """
+    # Calculate look-ahead sensor point
+    x_lookahead = x + lookahead_distance * np.cos(psi)
+    y_lookahead = y + lookahead_distance * np.sin(psi)
+
+    projection = project2curve(
+        s_c=s_c,
+        x_c=x_c,
+        y_c=y_c,
+        theta_c=theta_c,
+        kappa_c=kappa_c,
+        x=x_lookahead,
+        y=y_lookahead,
+    )
+
+    # Simulate camera view: return heading error instead of reference heading
+    heading_error = psi - projection.heading
+
+    return CurveProjection(
+        x=projection.x,
+        y=projection.y,
+        arc_length=projection.arc_length,
+        lateral_error=projection.lateral_error,
+        heading=heading_error,
+        curvature=projection.curvature,
+    )
+
+
+def project2curve(
+    s_c: np.ndarray,
+    x_c: np.ndarray,
+    y_c: np.ndarray,
+    theta_c: np.ndarray,
+    kappa_c: np.ndarray,
+    x: float,
+    y: float,
+) -> CurveProjection:
+    """Project a point onto a curve (defined as a polygonal chain).
+
+    Args:
+        s_c: Arc length of the curve points
+        x_c: X-coordinates of the curve points
+        y_c: Y-coordinates of the curve points
+        theta_c: Heading at the curve points
+        kappa_c: Curvature at the curve points
+        x: X-coordinate of the point to be projected
+        y: Y-coordinate of the point to be projected
+
+    Returns:
+        CurveProjection containing projected point properties
     """
     # Find the closest curve point to [x, y]
     distance, mindex = spatial.KDTree(np.array([x_c, y_c]).transpose()).query([x, y])
@@ -81,7 +154,14 @@ def project2curve(s_c, x_c, y_c, theta_c, kappa_c, x, y):
     kappa2 = kappa_c[start_index + 1]
     kappa_p = lambda_ * kappa2 + (1.0 - lambda_) * kappa1
 
-    return [x_p, y_p, s_p, d, theta_p, kappa_p]
+    return CurveProjection(
+        x=x_p,
+        y=y_p,
+        arc_length=s_p,
+        lateral_error=d,
+        heading=theta_p,
+        curvature=kappa_p,
+    )
 
 
 def pseudo_projection(start_index, x, y, x_c, y_c, theta_c):
