@@ -14,7 +14,7 @@ from behavior_generation_lecture_python.mdp.mdp import (
     random_action,
     value_iteration,
 )
-from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
+from behavior_generation_lecture_python.mdp.policy import CategoricalPolicy
 
 
 def test_init_mdp():
@@ -151,6 +151,7 @@ def test_q_learning(return_history):
         alpha=0.1,
         epsilon=0.1,
         iterations=10000,
+        seed=1337,
         return_history=return_history,
     )
 
@@ -158,8 +159,10 @@ def test_q_learning(return_history):
 @pytest.mark.parametrize("return_history", (True, False))
 def test_policy_gradient(return_history):
     mdp = GridMDP(**GRID_MDP_DICT)
-    pol = CategorialPolicy(
-        sizes=[len(mdp.initial_state), 32, len(mdp.actions)], actions=list(mdp.actions)
+    pol = CategoricalPolicy(
+        sizes=[len(mdp.initial_state), 32, len(mdp.actions)],
+        actions=list(mdp.actions),
+        seed=1337,
     )
     assert policy_gradient(
         mdp=mdp,
@@ -167,6 +170,7 @@ def test_policy_gradient(return_history):
         lr=1e2,
         iterations=5,
         batch_size=5000,
+        seed=1337,
         return_history=return_history,
         verbose=False,
     )

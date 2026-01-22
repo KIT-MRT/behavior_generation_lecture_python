@@ -8,7 +8,7 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
 import numpy as np
 import torch
 
-from behavior_generation_lecture_python.mdp.policy import CategorialPolicy
+from behavior_generation_lecture_python.mdp.policy import CategoricalPolicy
 
 SIMPLE_MDP_DICT = {
     "states": [1, 2],
@@ -147,9 +147,9 @@ class MDP:
     def sample_next_state(self, state, action) -> Any:
         """Randomly sample the next state given the current state and taken action."""
         if self.is_terminal(state):
-            return ValueError("No next state for terminal states.")
+            raise ValueError("No next state for terminal states.")
         if action is None:
-            return ValueError("Action must not be None.")
+            raise ValueError("Action must not be None.")
         prob_per_transition = self.get_transitions_with_probabilities(state, action)
         num_actions = len(prob_per_transition)
         choice = np.random.choice(
@@ -431,6 +431,7 @@ def q_learning(
     alpha: float,
     epsilon: float,
     iterations: int,
+    seed: Optional[int] = None,
     return_history: Optional[bool] = False,
 ) -> Union[QTable, List[QTable]]:
     """Derive a value estimate for state-action pairs by means of Q learning.
@@ -441,6 +442,7 @@ def q_learning(
         epsilon: Exploration-exploitation threshold. A random action is taken with
             probability epsilon, the best action otherwise.
         iterations: Number of iterations.
+        seed: Random seed for reproducibility (default: None).
         return_history: Whether to return the whole history of value estimates
             instead of just the final estimate.
 
@@ -448,14 +450,15 @@ def q_learning(
         The final value estimate, if return_history is false. The
         history of value estimates as list, if return_history is true.
     """
+    if seed is not None:
+        np.random.seed(seed)
+
     q_table = {}
     for state in mdp.get_states():
         for action in mdp.get_actions(state):
             q_table[(state, action)] = 0.0
     q_table_history = [q_table.copy()]
     state = mdp.initial_state
-
-    np.random.seed(1337)
 
     for _ in range(iterations):
         # available actions:
@@ -528,14 +531,15 @@ class PolicyGradientBuffer:
 def policy_gradient(
     *,
     mdp: MDP,
-    policy: CategorialPolicy,
+    policy: CategoricalPolicy,
     lr: float = 1e-2,
     iterations: int = 50,
     batch_size: int = 5000,
+    seed: Optional[int] = None,
     return_history: bool = False,
     use_random_init_state: bool = False,
     verbose: bool = True,
-) -> Union[List[CategorialPolicy], CategorialPolicy]:
+) -> Union[List[CategoricalPolicy], CategoricalPolicy]:
     """Train a paramterized policy using vanilla policy gradient.
 
     Adapted from: https://github.com/openai/spinningup/blob/master/spinup/examples/pytorch/pg_math/1_simple_pg.py
@@ -556,6 +560,7 @@ def policy_gradient(
         lr: Learning rate.
         iterations: Number of iterations.
         batch_size: Number of samples generated for each policy update.
+        seed: Random seed for reproducibility (default: None).
         return_history: Whether to return the whole history of value estimates
             instead of just the final estimate.
         use_random_init_state: bool, if the agent should be initialized randomly.
@@ -565,8 +570,9 @@ def policy_gradient(
         The final policy, if return_history is false. The
         history of policies as list, if return_history is true.
     """
-    np.random.seed(1337)
-    torch.manual_seed(1337)
+    if seed is not None:
+        np.random.seed(seed)
+        torch.manual_seed(seed)
 
     # add untrained model to model_checkpoints
     model_checkpoints = [deepcopy(policy)]
@@ -650,7 +656,7 @@ def policy_gradient(
     return policy
 
 
-def derive_deterministic_policy(mdp: MDP, policy: CategorialPolicy) -> Dict[Any, Any]:
+def derive_deterministic_policy(mdp: MDP, policy: CategoricalPolicy) -> Dict[Any, Any]:
     """Compute the best policy for an MDP given the stochastic policy.
 
     Args:
