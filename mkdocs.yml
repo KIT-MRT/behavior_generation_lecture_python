@@ -37,6 +37,8 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Slides:
+      - Software Engineering Intro: slides/software_intro.html
   - Code Examples for Lecture:
       - Compare Dynamic One Track Models: notebooks/compare_models_notebook.ipynb
       - Lateral Control (state-based): notebooks/lateral_control_state_based_notebook.ipynb

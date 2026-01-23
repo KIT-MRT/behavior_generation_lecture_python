@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applied Software Engineering - Introduction</title>
+    <link rel="stylesheet" href="https://unpkg.com/reveal.js@5.1.0/dist/reset.css">
+    <link rel="stylesheet" href="https://unpkg.com/reveal.js@5.1.0/dist/reveal.css">
+    <link rel="stylesheet" href="https://unpkg.com/reveal.js@5.1.0/dist/theme/white.css">
+    <link rel="stylesheet" href="https://unpkg.com/reveal.js@5.1.0/plugin/highlight/monokai.css">
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 {
+            text-transform: none;
+        }
+        .reveal pre {
+            font-size: 0.55em;
+            width: 100%;
+        }
+        .reveal pre code {
+            max-height: 500px;
+        }
+        .reveal ul {
+            display: block;
+        }
+        .reveal .small-text {
+            font-size: 0.7em;
+        }
+        .reveal .highlight-box {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .two-columns {
+            display: flex;
+            gap: 40px;
+        }
+        .two-columns > div {
+            flex: 1;
+        }
+        .diagram-center {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .reveal a.tool-link {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Title Slide -->
+            <section>
+                <h1>Applied Software Engineering</h1>
+                <h3>Tools and Best Practices for Python Development</h3>
+                <p class="small-text">
+                    Decision-Making and Motion Planning for Automated Driving<br>
+                    KIT - Karlsruhe Institute of Technology
+                </p>
+            </section>
+
+            <!-- Outline -->
+            <section>
+                <h2>Topics</h2>
+                <ol>
+                    <li>Git and GitHub</li>
+                    <li>Python and uv</li>
+                    <li>Unit Testing and TDD</li>
+                    <li>Linting and Code Quality</li>
+                    <li>IDE and Debugging</li>
+                </ol>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- SECTION 1: Git and GitHub -->
+            <!-- ============================================ -->
+
+            <section>
+                <h2>1. Git and GitHub</h2>
+            </section>
+
+            <section>
+                <h3>What is Version Control?</h3>
+                <ul>
+                    <li>Track changes to files over time</li>
+                    <li>Collaborate with others without conflicts</li>
+                    <li>Revert to previous versions when needed</li>
+                    <li>Maintain a complete history of your project</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong><a class="tool-link" href="https://git-scm.com/">Git</a></strong> = Distributed version control system<br>
+                    <strong><a class="tool-link" href="https://github.com/">GitHub</a></strong> = Web-based hosting for Git repositories
+                </div>
+                <p class="small-text">
+                    Docs: <a class="tool-link" href="https://git-scm.com/doc">git-scm.com/doc</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Git Basics</h3>
+                <pre><code class="language-bash"># Clone a repository
+git clone https://github.com/KIT-MRT/behavior_generation_lecture_python.git
+
+# Check status of your changes
+git status
+
+# Stage changes for commit
+git add myfile.py
+
+# Commit with a message
+git commit -m "Add new feature for path planning"
+
+# Push to remote repository
+git push origin main
+
+# Pull latest changes (fetch + merge)
+git pull origin main</code></pre>
+                <p class="small-text">
+                    Resources: <a class="tool-link" href="https://docs.github.com/en/get-started">GitHub Getting Started</a>,
+                    <a class="tool-link" href="https://git-scm.com/docs">Git reference</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Branching and Merging</h3>
+                <div class="two-columns">
+                    <div>
+                        <pre><code class="language-bash"># Create a new branch
+git checkout -b feature/new-controller
+
+# Switch between branches
+git checkout main
+
+# Merge a branch
+git merge feature/new-controller
+
+# Delete a branch
+git branch -d feature/new-controller</code></pre>
+                    </div>
+                    <div>
+                        <div class="diagram-center">
+                            <svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+                                <line x1="20" y1="150" x2="280" y2="150" stroke="#333" stroke-width="4" />
+
+                                <path d="M 80 150 Q 100 50 140 50 L 200 50 Q 240 50 260 150" stroke="#e74c3c" stroke-width="4" fill="none" />
+
+                                <circle cx="50" cy="150" r="10" fill="#333" />
+                                <circle cx="80" cy="150" r="10" fill="#333" />
+
+                                <circle cx="140" cy="50" r="10" fill="#e74c3c" />
+                                <circle cx="200" cy="50" r="10" fill="#e74c3c" />
+
+                                <circle cx="260" cy="150" r="10" fill="#333" stroke="#e74c3c" stroke-width="3" />
+
+                                <text x="20" y="180" font-family="sans-serif" font-size="14" fill="#333">main</text>
+                                <text x="140" y="30" font-family="sans-serif" font-size="14" fill="#e74c3c" text-anchor="middle">feature/new-controller</text>
+                            </svg>
+                        </div>
+                        <p><strong>Why branches?</strong></p>
+                        <ul class="small-text">
+                            <li>Isolate development work</li>
+                            <li>Work on features independently</li>
+                            <li>Review before merging to main</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <h3>GitHub Workflow</h3>
+                <ol>
+                    <li><strong>Fork/Clone</strong> the repository</li>
+                    <li><strong>Create a branch</strong> for your feature</li>
+                    <li><strong>Make changes</strong> and commit</li>
+                    <li><strong>Push</strong> to your fork/branch</li>
+                    <li><strong>Open a Pull Request (PR)</strong></li>
+                    <li><strong>Code Review</strong> by teammates</li>
+                    <li><strong>Merge</strong> after approval</li>
+                </ol>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- SECTION 2: Python and uv -->
+            <!-- ============================================ -->
+
+            <section>
+                <h2>2. Python and uv</h2>
+            </section>
+
+            <section>
+                <h3>The Python Environment Problem</h3>
+                <ul>
+                    <li>Different projects need different Python versions</li>
+                    <li>Package version conflicts between projects</li>
+                    <li>"It works on my machine" syndrome</li>
+                    <li>Reproducibility across team members</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Solution:</strong> Virtual environments + lock files
+                </div>
+            </section>
+
+            <section>
+                <h3><a class="tool-link" href="https://docs.astral.sh/uv/">uv</a> - Modern Python Package Manager</h3>
+                <ul>
+                    <li>Fast (written in Rust, 10-100x faster than pip)</li>
+                    <li>Manages Python versions</li>
+                    <li>Creates virtual environments automatically</li>
+                    <li>Generates lock files for reproducibility</li>
+                </ul>
+                <p class="small-text">
+                    Docs: <a class="tool-link" href="https://docs.astral.sh/uv/">docs.astral.sh/uv</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>uv - Common Commands</h3>
+                <pre><code class="language-bash"># Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Create a new project
+uv init my-project
+
+# Install dependencies
+uv sync
+
+# Add a new package
+uv add numpy
+
+# Run a script
+uv run python my_script.py</code></pre>
+            </section>
+
+            <section>
+                <h3>pyproject.toml</h3>
+                <p>Central configuration file for Python projects:</p>
+                <p class="small-text">
+                    Example (shortened). Full file:
+                    <a class="tool-link" href="https://github.com/KIT-MRT/behavior_generation_lecture_python/blob/main/pyproject.toml">pyproject.toml</a>
+                </p>
+                <pre><code class="language-toml">[project]
+name = "behavior_generation_lecture_python"
+version = "0.0.2"
+requires-python = ">=3.12, <3.13"
+
+dependencies = [
+    "numpy>=1.26.0",
+    "matplotlib>=2.2.4",
+    "scipy>=1.11.0",
+    # ...
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    # ...
+]</code></pre>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- SECTION 3: Unit Testing and TDD -->
+            <!-- ============================================ -->
+
+            <section>
+                <h2>3. Unit Testing and TDD</h2>
+            </section>
+
+            <section>
+                <h3>Why Testing?</h3>
+                <ul>
+                    <li><strong>Confidence:</strong> Know your code works</li>
+                    <li><strong>Refactoring:</strong> Change code safely</li>
+                    <li><strong>Documentation:</strong> Tests show how to use code</li>
+                    <li><strong>Collaboration:</strong> Catch breaking changes early</li>
+                    <li><strong>Design:</strong> Forces modular, testable code</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>pytest Basics</h3>
+                <pre><code class="language-python"># tests/test_a_star.py
+import pytest
+from behavior_generation_lecture_python.graph_search.a_star import a_star
+
+def test_a_star_finds_path():
+    """Test that A* finds a valid path."""
+    start = (0, 0)
+    goal = (5, 5)
+    
+    path = a_star(start, goal, grid)
+    
+    assert path is not None
+    assert path[0] == start
+    assert path[-1] == goal
+
+def test_a_star_no_path():
+    """Test that A* returns None when no path exists."""
+    path = a_star(start, goal, blocked_grid)
+    
+    assert path is None</code></pre>
+                <p class="small-text">
+                    Docs: <a class="tool-link" href="https://docs.pytest.org/">docs.pytest.org</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Running Tests</h3>
+                <pre><code class="language-bash"># Run all tests
+uv run pytest
+
+# Run tests with coverage
+uv run pytest --cov=src
+
+# Run specific test file
+uv run pytest tests/test_a_star.py
+
+# Run tests matching a pattern
+uv run pytest -k "test_a_star"
+
+# Show verbose output
+uv run pytest -v
+
+# Stop on first failure
+uv run pytest -x</code></pre>
+                <p class="small-text">
+                    Coverage plugin: <a class="tool-link" href="https://pytest-cov.readthedocs.io/">pytest-cov</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Test-Driven Development (TDD)</h3>
+                <div class="two-columns">
+                    <div>
+                        <h4>The TDD Cycle:</h4>
+                        <div class="diagram-center">
+                            <svg width="350" height="300" viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                        <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+                                    </marker>
+                                </defs>
+
+                                <circle cx="150" cy="50" r="40" fill="#ffdddd" stroke="#e74c3c" stroke-width="3"/>
+                                <text x="150" y="55" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#c0392b">RED</text>
+                                <text x="150" y="110" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#666">Write failing test</text>
+
+                                <circle cx="236" cy="200" r="40" fill="#ddffdd" stroke="#27ae60" stroke-width="3"/>
+                                <text x="236" y="205" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#27ae60">GREEN</text>
+                                <text x="236" y="260" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#666">Make it pass</text>
+
+                                <circle cx="64" cy="200" r="40" fill="#ddeeff" stroke="#2980b9" stroke-width="3"/>
+                                <text x="64" y="205" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#2980b9">REFACTOR</text>
+                                <text x="64" y="260" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#666">Improve code</text>
+
+                                <path d="M 185 65 Q 250 80 245 155" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                <path d="M 210 230 Q 150 280 90 230" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                                <path d="M 50 165 Q 40 80 115 60" stroke="#666" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
+                            </svg>
+                        </div>
+                        <p>Repeat!</p>
+                    </div>
+                    <div>
+                        <h4>Benefits:</h4>
+                        <ul class="small-text">
+                            <li>Clear requirements before coding</li>
+                            <li>Better design decisions</li>
+                            <li>High test coverage by default</li>
+                            <li>Faster debugging</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- SECTION 4: Linting and Code Quality -->
+            <!-- ============================================ -->
+
+            <section>
+                <h2>4. Linting and Code Quality</h2>
+            </section>
+
+            <section>
+                <h3>What is Linting?</h3>
+                <ul>
+                    <li>Static analysis of code for errors and style issues</li>
+                    <li>Catches bugs before running the code</li>
+                    <li>Enforces consistent code style across team</li>
+                    <li>Improves code readability and maintainability</li>
+                </ul>
+                <div class="highlight-box">
+                    <strong>Linter:</strong> Finds problems<br>
+                    <strong>Formatter:</strong> Fixes style automatically
+                </div>
+            </section>
+
+            <section>
+                <h3><a class="tool-link" href="https://docs.astral.sh/ruff/">ruff</a> - Fast Python Linter</h3>
+                <pre><code class="language-bash"># Format code (like Black)
+uv run ruff format
+
+# Check for linting issues
+uv run ruff check
+
+# Auto-fix what can be fixed
+uv run ruff check --fix</code></pre>
+                <p class="small-text">ruff is 10-100x faster than traditional tools!</p>
+                <p>Common issues caught:</p>
+                <ul class="small-text">
+                    <li>Unused imports and variables</li>
+                    <li>Line too long</li>
+                    <li>Missing docstrings</li>
+                </ul>
+                <p class="small-text">
+                    Docs: <a class="tool-link" href="https://docs.astral.sh/ruff/">docs.astral.sh/ruff</a>
+                </p>
+            </section>
+
+            <section>
+                <h3><a class="tool-link" href="https://mypy.readthedocs.io/">mypy</a> - Static Type Checking</h3>
+                <pre><code class="language-python"># Without type hints - mypy cannot help
+def calculate_reward(state, action):
+    return state * action  # Bug if state is a list!
+
+# With type hints - mypy catches errors
+def calculate_reward(state: float, action: float) -> float:
+    return state * action  # mypy ensures correct types</code></pre>
+                <pre><code class="language-bash"># Run type checking
+uv run mypy path/to/package_or_module</code></pre>
+                <p class="small-text">Type hints = documentation + error prevention</p>
+                <p class="small-text">
+                    Docs: <a class="tool-link" href="https://mypy.readthedocs.io/">mypy.readthedocs.io</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Continuous Integration (CI)</h3>
+                <p>CI is an automated quality gate that runs on every push / pull request.</p>
+                <ul class="small-text">
+                    <li>Fast feedback: catch issues early</li>
+                    <li>Reproducible results: same checks for everyone</li>
+                    <li>Protects main: merges only after checks pass</li>
+                </ul>
+                <p class="small-text">
+                    Our CI:
+                    <a class="tool-link" href="https://github.com/KIT-MRT/behavior_generation_lecture_python/blob/main/.github/workflows/ci.yml">.github/workflows/ci.yml</a>,
+                </p>
+            </section>
+
+            <section>
+                <h3>Typical Local Workflow</h3>
+                <pre><code class="language-bash"># Create a branch
+git checkout -b feature/my-change
+
+# Install (use the lock file)
+uv sync --all-extras
+
+# Run checks (see CI workflow for the exact commands)
+uv run ruff format
+uv run ruff check
+uv run mypy path/to/package_or_module
+uv run pytest</code></pre>
+            </section>
+
+            <!-- ============================================ -->
+            <!-- SECTION 5: IDE and Debugging -->
+            <!-- ============================================ -->
+
+            <section>
+                <h2>5. IDE and Debugging</h2>
+            </section>
+
+            <section>
+                <h3>VS Code / Cursor Setup</h3>
+                <ul>
+                    <li><strong><a class="tool-link" href="https://code.visualstudio.com/">VS Code</a> / <a class="tool-link" href="https://www.cursor.com/">Cursor</a>:</strong> IDE</li>
+                    <li><strong><a class="tool-link" href="https://marketplace.visualstudio.com/items?itemName=ms-python.python">Python Extension</a>:</strong> Syntax highlighting, IntelliSense</li>
+                    <li><strong><a class="tool-link" href="https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance">Pylance</a>:</strong> Fast type checking</li>
+                    <li><strong><a class="tool-link" href="https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff">Ruff Extension</a>:</strong> Linting and formatting</li>
+                    <li><strong><a class="tool-link" href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.jupyter">Jupyter Extension</a>:</strong> Run notebooks</li>
+                </ul>
+            </section>
+
+            <section>
+                <h3>VS Code / Cursor Settings</h3>
+                <pre><code class="language-json">// .vscode/settings.json
+{
+    "python.defaultInterpreterPath": ".venv/bin/python",
+    "[python]": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "charliermarsh.ruff"
+    }
+}</code></pre>
+            </section>
+
+            <section>
+                <h3>Common Setup Issues (and Fixes)</h3>
+                <ul>
+                    <li><strong>Wrong interpreter:</strong> Select <code>.venv/bin/python</code> in the IDE</li>
+                    <li><strong>Missing extras:</strong> Run <code>uv sync --all-extras</code> (docs, dev tools)</li>
+                    <li><strong>Lock file drift:</strong> Prefer using the lock file and keep <code>uv.lock</code> committed</li>
+                </ul>
+                <p class="small-text">
+                    Repo files:
+                    <a class="tool-link" href="https://github.com/KIT-MRT/behavior_generation_lecture_python/blob/main/uv.lock">uv.lock</a>,
+                    <a class="tool-link" href="https://github.com/KIT-MRT/behavior_generation_lecture_python/blob/main/pyproject.toml">pyproject.toml</a>
+                </p>
+            </section>
+
+            <section>
+                <h3>Debugging in VS Code</h3>
+                <div class="two-columns">
+                    <div>
+                        <h4>Key Features:</h4>
+                        <ul class="small-text">
+                            <li><strong>Breakpoints:</strong> Click left of line number</li>
+                            <li><strong>Step Over (F10):</strong> Execute current line</li>
+                            <li><strong>Step Into (F11):</strong> Enter function</li>
+                            <li><strong>Step Out:</strong> Exit function</li>
+                            <li><strong>Continue (F5):</strong> Run to next breakpoint</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4>Debug Views:</h4>
+                        <ul class="small-text">
+                            <li><strong>Variables:</strong> See current values</li>
+                            <li><strong>Watch:</strong> Monitor expressions</li>
+                            <li><strong>Call Stack:</strong> See function calls</li>
+                            <li><strong>Debug Console:</strong> Evaluate code</li>
+                        </ul>
+                    </div>
+                </div>
+                <p class="small-text">
+                    Docs: <a class="tool-link" href="https://code.visualstudio.com/docs/python/debugging">Python debugging in VS Code</a>
+                </p>
+            </section>
+
+            <!-- Summary -->
+            <section>
+                <h2>Summary</h2>
+                <table>
+                    <tr>
+                        <th>Topic</th>
+                        <th>Key Tools</th>
+                    </tr>
+                    <tr>
+                        <td>Version Control</td>
+                        <td>
+                            <a class="tool-link" href="https://git-scm.com/">git</a>,
+                            <a class="tool-link" href="https://docs.github.com/">GitHub</a>,
+                            Pull Requests
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Environment</td>
+                        <td>
+                            <a class="tool-link" href="https://docs.astral.sh/uv/">uv</a>,
+                            <a class="tool-link" href="https://github.com/KIT-MRT/behavior_generation_lecture_python/blob/main/pyproject.toml">pyproject.toml</a>,
+                            <a class="tool-link" href="https://github.com/KIT-MRT/behavior_generation_lecture_python/blob/main/uv.lock">uv.lock</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Testing</td>
+                        <td>
+                            <a class="tool-link" href="https://docs.pytest.org/">pytest</a>,
+                            <a class="tool-link" href="https://pytest-cov.readthedocs.io/">pytest-cov</a>,
+                            TDD
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Code Quality</td>
+                        <td>
+                            <a class="tool-link" href="https://docs.astral.sh/ruff/">ruff</a>,
+                            <a class="tool-link" href="https://mypy.readthedocs.io/">mypy</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Development</td>
+                        <td>
+                            <a class="tool-link" href="https://code.visualstudio.com/">VS Code</a>,
+                            <a class="tool-link" href="https://www.cursor.com/">Cursor</a>,
+                            <a class="tool-link" href="https://code.visualstudio.com/docs/python/debugging">Python debugger</a>
+                        </td>
+                    </tr>
+                </table>
+            </section>
+
+            <section>
+                <h2>Getting Started</h2>
+                <pre><code class="language-bash"># Clone the repository
+git clone https://github.com/KIT-MRT/behavior_generation_lecture_python.git
+cd behavior_generation_lecture_python
+
+# Install dependencies
+uv sync --all-extras
+
+# Run the tests
+uv run pytest
+
+# Start exploring!
+uv run jupyter lab</code></pre>
+                <p>
+                    <a href="https://kit-mrt.github.io/behavior_generation_lecture_python/">
+                        Documentation
+                    </a>
+                </p>
+            </section>
+
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/reveal.js@5.1.0/dist/reveal.js"></script>
+    <script src="https://unpkg.com/reveal.js@5.1.0/plugin/highlight/highlight.js"></script>
+    <script src="https://unpkg.com/reveal.js@5.1.0/plugin/notes/notes.js"></script>
+    <script>
+        Reveal.initialize({
+            hash: true,
+            slideNumber: true,
+            plugins: [ RevealHighlight, RevealNotes ]
+        });
+    </script>
+</body>
+</html>
