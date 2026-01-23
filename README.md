@@ -6,7 +6,7 @@
 [![License](https://img.shields.io/github/license/kit-mrt/behavior_generation_lecture_python)](LICENSE)
 
 This repository contains the python code for the lecture [Decision-Making and Motion Planning for Automated Driving](https://www.mrt.kit.edu/english/lehre_WS_Decision-Making_and_Motion_Planning_for_Automated_Driving.php) at KIT.
-It is targeted towards both, exemplifying the content of the lecture, and giving a brief introduction to software development. (Please bare with us, the code is largely ported from matlab.)
+It is targeted towards both, exemplifying the content of the lecture, and giving [a brief introduction to software development](https://kit-mrt.github.io/behavior_generation_lecture_python/slides/software_intro.html). (Please bare with us, the code is largely ported from matlab.)
 
 An API documentation for new parts of the code and exemplary jupyter notebooks can be found in the [documentation](https://kit-mrt.github.io/behavior_generation_lecture_python/).
 
