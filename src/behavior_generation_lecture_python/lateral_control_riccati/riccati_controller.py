@@ -1,10 +1,12 @@
 """LQR-based feedback controller for lateral vehicle control."""
 
+from typing import Any
+
 import numpy as np
 
 
 def feedback_law(
-    k_lqr: np.ndarray,
+    k_lqr: np.ndarray[Any, Any],
     k_dist_comp: float,
     lateral_error: float,
     heading_error: float,
@@ -31,6 +33,6 @@ def feedback_law(
         Steering angle command [rad]
     """
     state = np.array([lateral_error, heading_error, beta, yaw_rate])
-    steering_angle = np.dot(-k_lqr, state) + k_dist_comp * reference_curvature
+    steering_angle: float = float(np.dot(-k_lqr, state) + k_dist_comp * reference_curvature)
 
     return steering_angle

@@ -44,5 +44,5 @@ def feedback_law(
     )
 
     # Convert curvature to steering angle (inverse kinematic bicycle model)
-    steering_angle = np.arctan(wheelbase * curvature_command)
+    steering_angle: float = float(np.arctan(wheelbase * curvature_command))
     return steering_angle

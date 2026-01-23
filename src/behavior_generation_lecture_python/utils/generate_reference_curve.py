@@ -1,8 +1,10 @@
 """Generate reference curves from input points using spline interpolation."""
 
-import matplotlib.pyplot as plt  # type: ignore[import-untyped]
+from typing import Any
+
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy import interpolate  # type: ignore[import-untyped]
+from scipy import interpolate
 
 from behavior_generation_lecture_python.utils.reference_curve import ReferenceCurve
 
@@ -39,7 +41,7 @@ def pick_points_from_plot() -> ReferenceCurve:
 
 
 def generate_reference_curve(
-    x_points: np.ndarray, y_points: np.ndarray, sampling_distance: float
+    x_points: np.ndarray[Any, Any], y_points: np.ndarray[Any, Any], sampling_distance: float
 ) -> ReferenceCurve:
     """Generate a reference curve from input points using spline interpolation.
 
@@ -97,7 +99,7 @@ def generate_reference_curve(
     )
 
 
-def main():
+def main() -> None:
     curve = pick_points_from_plot()
     print(curve)
 

@@ -3,10 +3,10 @@
 import os
 from typing import Any
 
-import matplotlib as mpl  # type: ignore[import-untyped]
+import matplotlib as mpl
 import numpy as np
-from matplotlib.axes import Axes  # type: ignore[import-untyped]
-from matplotlib.patches import Polygon  # type: ignore[import-untyped]
+from matplotlib.axes import Axes
+from matplotlib.patches import Polygon
 
 NP_FILE = os.path.join(os.path.dirname(__file__), "f10.npy")
 geo: dict[str, Any] = np.load(NP_FILE, allow_pickle=True)[()]

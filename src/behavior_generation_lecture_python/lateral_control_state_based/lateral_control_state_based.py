@@ -1,9 +1,10 @@
 """Lateral vehicle control using state-based feedback with kinematic model."""
 
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
-from scipy.integrate import odeint  # type: ignore[import-untyped]
+from scipy.integrate import odeint
 
 import behavior_generation_lecture_python.lateral_control_state_based.state_based_controller as con
 import behavior_generation_lecture_python.utils.projection as pro
@@ -75,7 +76,7 @@ class LateralControlStateBased:
         self.velocity = 1.0
 
     def simulate(
-        self, time_vector: np.ndarray, velocity: float = 1.0
+        self, time_vector: np.ndarray[Any, Any], velocity: float = 1.0
     ) -> list[ControllerOutput]:
         """Simulate the closed-loop vehicle trajectory.
 
@@ -92,7 +93,9 @@ class LateralControlStateBased:
         )
         return [self._compute_output(state) for state in state_trajectory]
 
-    def _compute_state_derivatives(self, state: np.ndarray, time: float) -> np.ndarray:
+    def _compute_state_derivatives(
+        self, state: np.ndarray[Any, Any], time: float
+    ) -> np.ndarray[Any, Any]:
         """Compute state derivatives for the closed-loop system.
 
         Args:
@@ -115,12 +118,13 @@ class LateralControlStateBased:
         steering_angle = con.feedback_law(
             projection.lateral_error, psi, projection.heading, projection.curvature
         )
-        state_derivatives = kotm.KinematicOneTrackModel().system_dynamics(
+        # Vehicle model is not fully typed yet
+        state_derivatives: np.ndarray[Any, Any] = kotm.KinematicOneTrackModel().system_dynamics(  # type: ignore[no-untyped-call]
             state, time, self.velocity, steering_angle
         )
         return state_derivatives
 
-    def _compute_output(self, state: np.ndarray) -> ControllerOutput:
+    def _compute_output(self, state: np.ndarray[Any, Any]) -> ControllerOutput:
         """Compute output variables for the current state.
 
         Args:

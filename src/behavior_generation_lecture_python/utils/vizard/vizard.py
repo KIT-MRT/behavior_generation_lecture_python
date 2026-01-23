@@ -31,9 +31,9 @@ class Vizard:
             update_func: Function called to update the plot at each frame
             time_vec: Array of time values for the animation
         """
-        self.plots = []
-        self.func_animations = []
-        self.event_source = None
+        self.plots: list[Vizard.VizardPlot] = []
+        self.func_animations: list[FuncAnimation] = []
+        self.event_source: Optional[Any] = None
 
         self.i = 0
         self.min = 0

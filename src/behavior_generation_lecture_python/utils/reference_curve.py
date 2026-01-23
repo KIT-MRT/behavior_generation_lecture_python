@@ -1,6 +1,7 @@
 """Reference curve dataclass for path following controllers."""
 
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
@@ -17,8 +18,8 @@ class ReferenceCurve:
         curvature: Curvature at each point [1/m]
     """
 
-    arc_length: np.ndarray
-    x: np.ndarray
-    y: np.ndarray
-    heading: np.ndarray
-    curvature: np.ndarray
+    arc_length: np.ndarray[Any, Any]
+    x: np.ndarray[Any, Any]
+    y: np.ndarray[Any, Any]
+    heading: np.ndarray[Any, Any]
+    curvature: np.ndarray[Any, Any]

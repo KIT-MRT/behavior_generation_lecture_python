@@ -2,11 +2,12 @@
 
 import math
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
-import scipy.linalg  # type: ignore[import-untyped]
-from scipy import signal  # type: ignore[import-untyped]
-from scipy.integrate import odeint  # type: ignore[import-untyped]
+import scipy.linalg
+from scipy import signal
+from scipy.integrate import odeint
 
 import behavior_generation_lecture_python.lateral_control_riccati.riccati_controller as con
 import behavior_generation_lecture_python.utils.projection as pro
@@ -28,7 +29,7 @@ class ControlParameters:
     """
 
     lookahead_distance: float
-    lqr_gain: np.ndarray
+    lqr_gain: np.ndarray[Any, Any]
     disturbance_compensation_gain: float
 
 
@@ -42,9 +43,9 @@ class LQRSolution:
         closed_loop_eigenvalues: Eigenvalues of the closed-loop system (A - BK)
     """
 
-    feedback_gain: np.ndarray
-    riccati_solution: np.ndarray
-    closed_loop_eigenvalues: np.ndarray
+    feedback_gain: np.ndarray[Any, Any]
+    riccati_solution: np.ndarray[Any, Any]
+    closed_loop_eigenvalues: np.ndarray[Any, Any]
 
 
 @dataclass
@@ -263,7 +264,9 @@ def get_control_params(
     )
 
 
-def lqr(A: np.ndarray, B: np.ndarray, Q: np.ndarray, R: float) -> LQRSolution:
+def lqr(
+    A: np.ndarray[Any, Any], B: np.ndarray[Any, Any], Q: np.ndarray[Any, Any], R: float
+) -> LQRSolution:
     """Solve the continuous-time Linear Quadratic Regulator (LQR) problem.
 
     Finds the optimal state-feedback gain K that minimizes the cost function:
@@ -351,8 +354,11 @@ class LateralControlRiccati:
         ).to_ss()
 
     def simulate(
-        self, time_vector: np.ndarray, velocity: float = 1, time_step: float = 0.1
-    ) -> np.ndarray:
+        self,
+        time_vector: np.ndarray[Any, Any],
+        velocity: float = 1,
+        time_step: float = 0.1,
+    ) -> np.ndarray[Any, Any]:
         """Simulate the closed-loop vehicle trajectory.
 
         Args:
@@ -365,7 +371,7 @@ class LateralControlRiccati:
             Columns: [x, y, psi, beta, yaw_rate, steering_angle, steering_rate]
         """
         self.velocity = velocity
-        state_trajectory = odeint(
+        state_trajectory: np.ndarray[Any, Any] = odeint(
             self._compute_state_derivatives,
             self.initial_simulation_state.to_list(),
             time_vector,
@@ -435,7 +441,7 @@ class LateralControlRiccati:
         )
 
     def _compute_state_derivatives(
-        self, state: np.ndarray, time: float, time_step: float
+        self, state: np.ndarray[Any, Any], time: float, time_step: float
     ) -> tuple[float, float, float, float, float, float, float]:
         """Compute state derivatives for the closed-loop system.
 
@@ -493,9 +499,9 @@ class LateralControlRiccati:
             steering_command,
         )
 
-        # Compute vehicle dynamics
+        # Compute vehicle dynamics (vehicle model is not fully typed yet)
         vehicle_state = state[:5]
-        vehicle_derivatives = dotm.DynamicOneTrackModel(
+        vehicle_derivatives = dotm.DynamicOneTrackModel(  # type: ignore[no-untyped-call]
             self.vehicle_params
         ).system_dynamics(
             vehicle_state, time, self.velocity, actuator_output.actual_steering_angle

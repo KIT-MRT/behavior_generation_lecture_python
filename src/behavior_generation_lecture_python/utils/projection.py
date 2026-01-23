@@ -2,9 +2,10 @@
 
 import warnings
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
-from scipy import spatial  # type: ignore[import-untyped]
+from scipy import spatial
 
 import behavior_generation_lecture_python.utils.normalize_angle as na
 
@@ -32,11 +33,11 @@ class CurveProjection:
 
 
 def project2curve_with_lookahead(
-    s_c: np.ndarray,
-    x_c: np.ndarray,
-    y_c: np.ndarray,
-    theta_c: np.ndarray,
-    kappa_c: np.ndarray,
+    s_c: np.ndarray[Any, Any],
+    x_c: np.ndarray[Any, Any],
+    y_c: np.ndarray[Any, Any],
+    theta_c: np.ndarray[Any, Any],
+    kappa_c: np.ndarray[Any, Any],
     lookahead_distance: float,
     x: float,
     y: float,
@@ -89,11 +90,11 @@ def project2curve_with_lookahead(
 
 
 def project2curve(
-    s_c: np.ndarray,
-    x_c: np.ndarray,
-    y_c: np.ndarray,
-    theta_c: np.ndarray,
-    kappa_c: np.ndarray,
+    s_c: np.ndarray[Any, Any],
+    x_c: np.ndarray[Any, Any],
+    y_c: np.ndarray[Any, Any],
+    theta_c: np.ndarray[Any, Any],
+    kappa_c: np.ndarray[Any, Any],
     x: float,
     y: float,
 ) -> CurveProjection:
@@ -164,21 +165,29 @@ def project2curve(
     )
 
 
-def pseudo_projection(start_index, x, y, x_c, y_c, theta_c):
-    """Project a point onto a segment of a curve (defined as a polygonal chain/ sequence of points/ line string)
+def pseudo_projection(
+    start_index: int,
+    x: float,
+    y: float,
+    x_c: np.ndarray[Any, Any],
+    y_c: np.ndarray[Any, Any],
+    theta_c: np.ndarray[Any, Any],
+) -> tuple[np.ndarray[Any, Any], float, int]:
+    """Project a point onto a segment of a curve.
 
     Args:
         start_index: Start index of the segment to be projected to
-        x_c: x-coordinates of the curve points
-        y_c: y-coordinates of the curve points
-        theta_c: heading at the curve points
-        x: x-coordinates of the point to be projected
-        y: y-coordinates of the point to be projected
+        x: X-coordinate of the point to be projected
+        y: Y-coordinate of the point to be projected
+        x_c: X-coordinates of the curve points
+        y_c: Y-coordinates of the curve points
+        theta_c: Heading at the curve points
 
     Returns:
-        properties of the projected point as list: point ([x-coordinate,
-        y-coordinate]), lambda: interpolation scale, sgn: sign of the
-        projection (-1 or 1)
+        Tuple of (projected_point, lambda, sign) where:
+        - projected_point: [x, y] coordinates of projection
+        - lambda: interpolation parameter (0 to 1)
+        - sign: +1 if point is left of curve, -1 if right, 0 if on curve
     """
     p1 = np.array([x_c[start_index], y_c[start_index]])
     p2 = np.array([x_c[start_index + 1], y_c[start_index + 1]])
@@ -209,4 +218,4 @@ def pseudo_projection(start_index, x, y, x_c, y_c, theta_c):
     elif x_[1] < 0:
         sgn = -1
 
-    return [px, lambda_, sgn]
+    return (px, float(lambda_), sgn)
