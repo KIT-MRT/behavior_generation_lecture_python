@@ -38,11 +38,13 @@ jobs:
       - name: Run ruff format
         run: uv run ruff format
 
-      - name: Run ruff linter for mdp folder
-        run: uv run ruff check src/behavior_generation_lecture_python/mdp
+      - name: Run ruff linter
+        run: 
+          uv run ruff check
 
-      - name: Run mypy for mdp folder
-        run: uv run mypy src/behavior_generation_lecture_python/mdp
+      - name: Run mypy
+        run: 
+          uv run mypy
 
       - name: Test
         run: |
