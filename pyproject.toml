@@ -51,3 +51,46 @@ docs = [
 requires = ["setuptools>=64.0.0", "wheel", "pip>=21.3.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.ruff]
+# Check src, scripts, and notebooks
+include = ["src/**/*.py", "scripts/**/*.py", "notebooks/**/*.ipynb"]
+
+# Exclude files that aren't ready yet
+exclude = [
+    "notebooks/compare_models_notebook.ipynb",
+    "notebooks/lateral_control_riccati_notebook.ipynb",
+    "notebooks/lateral_control_state_based_notebook.ipynb",
+    "scripts/run_compare_dynamic_one_track_models.py",
+    "scripts/run_lateral_control_riccati.py",
+    "scripts/run_lateral_control_state_based.py",
+    "src/behavior_generation_lecture_python/finite_state_machine/traffic_light_visualization.py",
+    "src/behavior_generation_lecture_python/lateral_control_riccati/lateral_control_riccati.py",
+]
+
+[tool.ruff.lint]
+# Ignore specific rules globally that are too noisy
+ignore = [
+    "E731",  # Do not assign a lambda expression, use a def
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = false # for now
+ignore_missing_imports = true
+
+# Files/folders to check (notebooks are checked by ruff, not mypy)
+files = ["src", "scripts"]
+
+# Exclude files/folders that aren't fully typed yet
+exclude = [
+    "src/behavior_generation_lecture_python/finite_state_machine/",
+    "src/behavior_generation_lecture_python/vehicle_models/",
+    "src/behavior_generation_lecture_python/graph_search/",
+    "src/behavior_generation_lecture_python/utils/vizard/",
+    "src/behavior_generation_lecture_python/utils/grid_plotting.py",
+    "src/behavior_generation_lecture_python/lateral_control_riccati/lateral_control_riccati.py",
+    "scripts/run_finite_state_machine_cli.py",
+    "scripts/run_finite_state_machine_visu.py",
+    "scripts/run_compare_dynamic_one_track_models.py",
+    "scripts/run_a_star.py",
+]
