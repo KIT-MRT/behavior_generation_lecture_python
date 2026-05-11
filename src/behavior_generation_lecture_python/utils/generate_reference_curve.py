@@ -1,9 +1,20 @@
+"""Generate reference curves from input points using spline interpolation."""
+
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import interpolate
 
+from behavior_generation_lecture_python.utils.reference_curve import ReferenceCurve
 
-def pick_points_from_plot():
+
+def pick_points_from_plot() -> ReferenceCurve:
+    """Interactively pick points from a plot to generate a reference curve.
+
+    Returns:
+        A ReferenceCurve generated from the selected points.
+    """
     fig, ax = plt.subplots()
     ax.set_xlim([0, 100])
     ax.set_ylim([0, 100])
@@ -20,7 +31,7 @@ def pick_points_from_plot():
     x_input = xy[:, 0]
     y_input = xy[:, 1]
     curve = generate_reference_curve(x_input, y_input, 1)
-    ax.plot(curve["x"], curve["y"], "r-")
+    ax.plot(curve.x, curve.y, "r-")
     ax.plot(x_input, y_input, "bo")
     plt.draw()
     print("Press any key to exit")
@@ -29,54 +40,66 @@ def pick_points_from_plot():
     return curve
 
 
-def generate_reference_curve(xx, yy, delta):
-    assert len(xx) == len(yy) >= 4
-    delta_s = np.sqrt(np.diff(xx) ** 2 + np.diff(yy) ** 2)
-    chords = np.cumsum(np.concatenate([[0], delta_s]))
+def generate_reference_curve(
+    x_points: np.ndarray[Any, Any], y_points: np.ndarray[Any, Any], sampling_distance: float
+) -> ReferenceCurve:
+    """Generate a reference curve from input points using spline interpolation.
 
-    # Generate spline for xx(s) and yy(s)
-    sp_x = interpolate.splrep(chords, xx)
-    sp_y = interpolate.splrep(chords, yy)
+    Args:
+        x_points: X-coordinates of the input points (at least 4 points required)
+        y_points: Y-coordinates of the input points (at least 4 points required)
+        sampling_distance: Distance between sampled points on the output curve [m]
 
-    # At every delta meter, evaluate spline...
-    s_sampled = np.arange(0, max(chords) + delta, delta)
-    x_curve = interpolate.splev(s_sampled, sp_x, der=0)
-    y_curve = interpolate.splev(s_sampled, sp_y, der=0)
+    Returns:
+        A ReferenceCurve with arc length, x, y, heading, and curvature arrays.
+    """
+    assert len(x_points) == len(y_points) >= 4
+    segment_lengths = np.sqrt(np.diff(x_points) ** 2 + np.diff(y_points) ** 2)
+    chord_lengths = np.cumsum(np.concatenate([[0], segment_lengths]))
 
-    # ... and its first ...
-    x_prime = interpolate.splev(s_sampled, sp_x, der=1)
-    y_prime = interpolate.splev(s_sampled, sp_y, der=1)
+    # Generate spline for x(s) and y(s)
+    spline_x = interpolate.splrep(chord_lengths, x_points)
+    spline_y = interpolate.splrep(chord_lengths, y_points)
+
+    # At every sampling_distance meter, evaluate spline...
+    arc_length_sampled = np.arange(
+        0, max(chord_lengths) + sampling_distance, sampling_distance
+    )
+    x_curve = interpolate.splev(arc_length_sampled, spline_x, der=0)
+    y_curve = interpolate.splev(arc_length_sampled, spline_y, der=0)
+
+    # ... and its first derivative ...
+    dx_ds = interpolate.splev(arc_length_sampled, spline_x, der=1)
+    dy_ds = interpolate.splev(arc_length_sampled, spline_y, der=1)
 
     # ... and its second derivative ...
-    x_pprime = interpolate.splev(s_sampled, sp_x, der=2)
-    y_pprime = interpolate.splev(s_sampled, sp_y, der=2)
+    d2x_ds2 = interpolate.splev(arc_length_sampled, spline_x, der=2)
+    d2y_ds2 = interpolate.splev(arc_length_sampled, spline_y, der=2)
 
-    # delta_s = sqrt(delta_x² + delta_y²) (add zero at the first
-    s_curve = np.concatenate(
+    # Compute arc length: delta_s = sqrt(delta_x^2 + delta_y^2)
+    arc_length = np.concatenate(
         (
             np.array([0]),
             np.cumsum(np.sqrt(np.diff(x_curve) ** 2 + np.diff(y_curve) ** 2)),
         )
     )
 
-    # tan(theta) = dy/dx = (dy/ds) / (dx/ds)
-    theta_curve = np.arctan2(y_prime, x_prime)
+    # Heading: tan(theta) = dy/dx = (dy/ds) / (dx/ds)
+    heading = np.arctan2(dy_ds, dx_ds)
 
-    # kappa = (x'y'' - y'x'')/(x'² + y'²)^(3/2)
-    kappa_curve = (x_prime * y_pprime - y_prime * x_pprime) / (
-        x_prime**2 + y_prime**2
-    ) ** (3 / 2)
+    # Curvature: kappa = (x'y'' - y'x'') / (x'^2 + y'^2)^(3/2)
+    curvature = (dx_ds * d2y_ds2 - dy_ds * d2x_ds2) / (dx_ds**2 + dy_ds**2) ** (3 / 2)
 
-    return {
-        "s": s_curve,
-        "x": x_curve,
-        "y": y_curve,
-        "theta": theta_curve,
-        "kappa": kappa_curve,
-    }
+    return ReferenceCurve(
+        arc_length=arc_length,
+        x=x_curve,
+        y=y_curve,
+        heading=heading,
+        curvature=curvature,
+    )
 
 
-def main():
+def main() -> None:
     curve = pick_points_from_plot()
     print(curve)
 

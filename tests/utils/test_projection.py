@@ -35,7 +35,7 @@ def test_project2curve():
     with pytest.warns(
         UserWarning, match="Extrapolating over start of reference curve!"
     ):
-        projected_point = projection.project2curve(
+        result = projection.project2curve(
             s_c=sc.curve_points_s,
             x_c=sc.curve_points_x,
             y_c=sc.curve_points_y,
@@ -44,17 +44,16 @@ def test_project2curve():
             x=target_point[0],
             y=target_point[1],
         )
-    x_p, y_p, s_p, d, theta_p, kappa_p = projected_point
-    assert x_p == -1
-    assert y_p == 0
-    assert s_p == -1
-    assert d == pytest.approx(0)
-    assert kappa_p == -10
-    # theta is not meaningful here
+    assert result.x == -1
+    assert result.y == 0
+    assert result.arc_length == -1
+    assert result.lateral_error == pytest.approx(0)
+    assert result.curvature == -10
+    # heading is not meaningful here
 
     target_point = [4, 3]
     with pytest.warns(UserWarning, match="Extrapolating over end of reference curve!"):
-        projected_point = projection.project2curve(
+        result = projection.project2curve(
             s_c=sc.curve_points_s,
             x_c=sc.curve_points_x,
             y_c=sc.curve_points_y,
@@ -63,17 +62,16 @@ def test_project2curve():
             x=target_point[0],
             y=target_point[1],
         )
-    x_p, y_p, s_p, d, theta_p, kappa_p = projected_point
-    assert x_p == pytest.approx(3.2, abs=0.1)
-    assert y_p == pytest.approx(3.4, abs=0.1)
-    assert s_p == pytest.approx(3.4, abs=0.1)
-    assert d == pytest.approx(-0.9, abs=0.1)
-    assert theta_p == pytest.approx(np.arctan(2))
-    assert kappa_p == -10
+    assert result.x == pytest.approx(3.2, abs=0.1)
+    assert result.y == pytest.approx(3.4, abs=0.1)
+    assert result.arc_length == pytest.approx(3.4, abs=0.1)
+    assert result.lateral_error == pytest.approx(-0.9, abs=0.1)
+    assert result.heading == pytest.approx(np.arctan(2))
+    assert result.curvature == -10
 
     target_point = [1, 1]
     with warnings.catch_warnings():
-        projected_point = projection.project2curve(
+        result = projection.project2curve(
             s_c=sc.curve_points_s,
             x_c=sc.curve_points_x,
             y_c=sc.curve_points_y,
@@ -82,5 +80,4 @@ def test_project2curve():
             x=target_point[0],
             y=target_point[1],
         )
-    x_p, y_p, s_p, d, theta_p, kappa_p = projected_point
     # todo: assertions

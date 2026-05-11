@@ -1,5 +1,8 @@
+"""Lateral vehicle control using LQR (Linear Quadratic Regulator) with Riccati equation."""
+
 import math
 from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 import scipy.linalg
@@ -9,6 +12,7 @@ from scipy.integrate import odeint
 import behavior_generation_lecture_python.lateral_control_riccati.riccati_controller as con
 import behavior_generation_lecture_python.utils.projection as pro
 import behavior_generation_lecture_python.vehicle_models.dynamic_one_track_model as dotm
+from behavior_generation_lecture_python.utils.reference_curve import ReferenceCurve
 from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import (
     VehicleParameters,
 )
@@ -16,172 +20,500 @@ from behavior_generation_lecture_python.vehicle_models.vehicle_parameters import
 
 @dataclass
 class ControlParameters:
-    l_s: float
-    k_lqr: np.ndarray
-    k_dist_comp: float
+    """Parameters for the LQR lateral controller.
+
+    Attributes:
+        lookahead_distance: Look-ahead distance for the controller [m]
+        lqr_gain: LQR feedback gain vector [k_lateral, k_heading, k_beta, k_yaw_rate]
+        disturbance_compensation_gain: Gain for curvature feedforward compensation
+    """
+
+    lookahead_distance: float
+    lqr_gain: np.ndarray[Any, Any]
+    disturbance_compensation_gain: float
 
 
-def get_control_params(vehicle_params: VehicleParameters, velocity: float, r: float):
-    v_0 = velocity
+@dataclass
+class LQRSolution:
+    """Solution of the continuous-time LQR problem.
 
-    c_v = vehicle_params.A_v * vehicle_params.B_v * vehicle_params.C_v
-    c_h = vehicle_params.A_h * vehicle_params.B_h * vehicle_params.C_h
+    Attributes:
+        feedback_gain: State feedback gain vector K
+        riccati_solution: Solution matrix X of the algebraic Riccati equation
+        closed_loop_eigenvalues: Eigenvalues of the closed-loop system (A - BK)
+    """
 
-    a11 = -(c_h + c_v) / (vehicle_params.m * v_0)
-    a12 = -1 + (c_h * vehicle_params.l_h - c_v * vehicle_params.l_v) / (
-        vehicle_params.m * np.power(v_0, 2)
+    feedback_gain: np.ndarray[Any, Any]
+    riccati_solution: np.ndarray[Any, Any]
+    closed_loop_eigenvalues: np.ndarray[Any, Any]
+
+
+@dataclass
+class ActuatorDynamicsOutput:
+    """Output of the PT2 actuator dynamics computation.
+
+    Attributes:
+        steering_angle_derivative: Rate of change of steering angle [rad/s]
+        steering_rate_derivative: Rate of change of steering rate [rad/s^2]
+        actual_steering_angle: Current actual steering angle after actuator dynamics [rad]
+    """
+
+    steering_angle_derivative: float
+    steering_rate_derivative: float
+    actual_steering_angle: float
+
+
+@dataclass
+class DynamicVehicleState:
+    """State of a vehicle using the dynamic one-track model.
+
+    Attributes:
+        x: X-position in global coordinates [m]
+        y: Y-position in global coordinates [m]
+        heading: Vehicle heading angle (yaw) [rad]
+        sideslip_angle: Sideslip angle (beta) at center of gravity [rad]
+        yaw_rate: Angular velocity around vertical axis [rad/s]
+    """
+
+    x: float
+    y: float
+    heading: float
+    sideslip_angle: float
+    yaw_rate: float
+
+    def to_list(self) -> list[float]:
+        """Convert to list for use with numerical integrators."""
+        return [self.x, self.y, self.heading, self.sideslip_angle, self.yaw_rate]
+
+
+@dataclass
+class SimulationState:
+    """Full simulation state including vehicle dynamics and actuator states.
+
+    Attributes:
+        x: X-position in global coordinates [m]
+        y: Y-position in global coordinates [m]
+        heading: Vehicle heading angle (yaw) [rad]
+        sideslip_angle: Sideslip angle (beta) at center of gravity [rad]
+        yaw_rate: Angular velocity around vertical axis [rad/s]
+        steering_angle: Current steering angle [rad]
+        steering_rate: Current rate of change of steering angle [rad/s]
+    """
+
+    x: float
+    y: float
+    heading: float
+    sideslip_angle: float
+    yaw_rate: float
+    steering_angle: float
+    steering_rate: float
+
+    @classmethod
+    def from_vehicle_state(
+        cls,
+        vehicle_state: DynamicVehicleState,
+        steering_angle: float = 0.0,
+        steering_rate: float = 0.0,
+    ) -> "SimulationState":
+        """Create simulation state from vehicle state with initial actuator values."""
+        return cls(
+            x=vehicle_state.x,
+            y=vehicle_state.y,
+            heading=vehicle_state.heading,
+            sideslip_angle=vehicle_state.sideslip_angle,
+            yaw_rate=vehicle_state.yaw_rate,
+            steering_angle=steering_angle,
+            steering_rate=steering_rate,
+        )
+
+    def to_list(self) -> list[float]:
+        """Convert to list for use with numerical integrators."""
+        return [
+            self.x,
+            self.y,
+            self.heading,
+            self.sideslip_angle,
+            self.yaw_rate,
+            self.steering_angle,
+            self.steering_rate,
+        ]
+
+
+@dataclass
+class StateDerivatives:
+    """Time derivatives of the simulation state.
+
+    Attributes:
+        x_dot: Velocity in x-direction [m/s]
+        y_dot: Velocity in y-direction [m/s]
+        heading_dot: Yaw rate [rad/s]
+        sideslip_angle_dot: Rate of change of sideslip angle [rad/s]
+        yaw_rate_dot: Angular acceleration [rad/s^2]
+        steering_angle_dot: Rate of change of steering angle [rad/s]
+        steering_rate_dot: Steering acceleration [rad/s^2]
+    """
+
+    x_dot: float
+    y_dot: float
+    heading_dot: float
+    sideslip_angle_dot: float
+    yaw_rate_dot: float
+    steering_angle_dot: float
+    steering_rate_dot: float
+
+    def to_tuple(self) -> tuple[float, float, float, float, float, float, float]:
+        """Convert to tuple for use with numerical integrators like odeint."""
+        return (
+            self.x_dot,
+            self.y_dot,
+            self.heading_dot,
+            self.sideslip_angle_dot,
+            self.yaw_rate_dot,
+            self.steering_angle_dot,
+            self.steering_rate_dot,
+        )
+
+
+def get_control_params(
+    vehicle_params: VehicleParameters, velocity: float, control_weight: float
+) -> ControlParameters:
+    """Compute LQR control parameters for the given vehicle and velocity.
+
+    This function linearizes the vehicle dynamics at the given velocity and
+    solves the LQR problem to obtain optimal feedback gains.
+
+    Args:
+        vehicle_params: Physical parameters of the vehicle
+        velocity: Longitudinal velocity for linearization [m/s]
+        control_weight: Weight on control effort in LQR cost (higher = less aggressive)
+
+    Returns:
+        ControlParameters containing LQR gains and disturbance compensation.
+    """
+    # Compute cornering stiffness from tire parameters (Pacejka magic formula coefficients)
+    cornering_stiffness_front = (
+        vehicle_params.A_v * vehicle_params.B_v * vehicle_params.C_v
     )
-    a21 = (c_h * vehicle_params.l_h - c_v * vehicle_params.l_v) / vehicle_params.J
+    cornering_stiffness_rear = (
+        vehicle_params.A_h * vehicle_params.B_h * vehicle_params.C_h
+    )
+
+    # Linearized lateral dynamics matrix elements
+    a11 = -(cornering_stiffness_rear + cornering_stiffness_front) / (
+        vehicle_params.m * velocity
+    )
+    a12 = -1 + (
+        cornering_stiffness_rear * vehicle_params.l_h
+        - cornering_stiffness_front * vehicle_params.l_v
+    ) / (vehicle_params.m * np.power(velocity, 2))
+    a21 = (
+        cornering_stiffness_rear * vehicle_params.l_h
+        - cornering_stiffness_front * vehicle_params.l_v
+    ) / vehicle_params.J
     a22 = -(
-        c_v * np.power(vehicle_params.l_v, 2) + c_h * np.power(vehicle_params.l_h, 2)
-    ) / (vehicle_params.J * v_0)
+        cornering_stiffness_front * np.power(vehicle_params.l_v, 2)
+        + cornering_stiffness_rear * np.power(vehicle_params.l_h, 2)
+    ) / (vehicle_params.J * velocity)
 
-    A_lOTM = np.array([[a11, a12], [a21, a22]])
-    b_lOTM = np.array(
+    A_lateral_dynamics = np.array([[a11, a12], [a21, a22]])
+    B_lateral_dynamics = np.array(
         [
-            c_v / (vehicle_params.m * v_0),
-            c_v * vehicle_params.l_v / vehicle_params.J,
+            cornering_stiffness_front / (vehicle_params.m * velocity),
+            cornering_stiffness_front * vehicle_params.l_v / vehicle_params.J,
         ]
     )
 
-    A = np.array(
+    # Augmented system matrix for error dynamics
+    # State: [lateral_error, heading_error, beta, yaw_rate]
+    A_augmented = np.array(
         [
-            [0, v_0, v_0, vehicle_params.l_s],
+            [0, velocity, velocity, vehicle_params.l_s],
             [0, 0, 0, 1],
-            [0, 0, A_lOTM[0, 0], A_lOTM[0, 1]],
-            [0, 0, A_lOTM[1, 0], A_lOTM[1, 1]],
+            [0, 0, A_lateral_dynamics[0, 0], A_lateral_dynamics[0, 1]],
+            [0, 0, A_lateral_dynamics[1, 0], A_lateral_dynamics[1, 1]],
         ]
     )
-    b = (np.array([0, 0, b_lOTM[0], b_lOTM[1]])[np.newaxis]).transpose()
+    B_augmented = (
+        np.array([0, 0, B_lateral_dynamics[0], B_lateral_dynamics[1]])[np.newaxis]
+    ).transpose()
 
-    Q = np.zeros((4, 4))
-    np.fill_diagonal(Q, 1)
+    # LQR state weighting matrix (identity = equal weight on all states)
+    Q_state_weight = np.zeros((4, 4))
+    np.fill_diagonal(Q_state_weight, 1)
 
-    k_lqr, _, _ = lqr(A=A, b=b, Q=Q, r=r)
+    lqr_solution = lqr(A=A_augmented, B=B_augmented, Q=Q_state_weight, R=control_weight)
 
-    l = vehicle_params.l_h + vehicle_params.l_v
-    EG = vehicle_params.m / l * (vehicle_params.l_h / c_v - vehicle_params.l_v / c_h)
-    k_dist_comp = l + EG * np.power(v_0, 2)
+    # Compute disturbance compensation gain (understeer gradient compensation)
+    wheelbase = vehicle_params.l_h + vehicle_params.l_v
+    understeer_gradient = (
+        vehicle_params.m
+        / wheelbase
+        * (
+            vehicle_params.l_h / cornering_stiffness_front
+            - vehicle_params.l_v / cornering_stiffness_rear
+        )
+    )
+    disturbance_compensation_gain = wheelbase + understeer_gradient * np.power(
+        velocity, 2
+    )
 
     return ControlParameters(
-        l_s=vehicle_params.l_s, k_lqr=k_lqr, k_dist_comp=k_dist_comp
+        lookahead_distance=vehicle_params.l_s,
+        lqr_gain=lqr_solution.feedback_gain,
+        disturbance_compensation_gain=disturbance_compensation_gain,
     )
 
 
-def lqr(A, b, Q, r):
-    X = scipy.linalg.solve_continuous_are(A, b, Q, r)
+def lqr(
+    A: np.ndarray[Any, Any], B: np.ndarray[Any, Any], Q: np.ndarray[Any, Any], R: float
+) -> LQRSolution:
+    """Solve the continuous-time Linear Quadratic Regulator (LQR) problem.
 
-    K = (1 / r) * np.dot(b.T, X)
-    K = np.array([K[0, 0], K[0, 1], K[0, 2], K[0, 3]])
+    Finds the optimal state-feedback gain K that minimizes the cost function:
+    J = integral(x'Qx + u'Ru) dt
 
-    eig_vals, eig_vecs = scipy.linalg.eig(A - b * K)
+    Args:
+        A: System dynamics matrix (n x n)
+        B: Input matrix (n x 1)
+        Q: State weighting matrix (n x n), must be positive semi-definite
+        R: Control weighting scalar, must be positive
 
-    return K, X, eig_vals
+    Returns:
+        LQRSolution containing feedback gain, Riccati solution, and closed-loop eigenvalues.
+    """
+    riccati_solution = scipy.linalg.solve_continuous_are(A, B, Q, R)
+
+    feedback_gain_matrix = (1 / R) * np.dot(B.T, riccati_solution)
+    feedback_gain = np.array(
+        [
+            feedback_gain_matrix[0, 0],
+            feedback_gain_matrix[0, 1],
+            feedback_gain_matrix[0, 2],
+            feedback_gain_matrix[0, 3],
+        ]
+    )
+
+    closed_loop_eigenvalues, _ = scipy.linalg.eig(A - B * feedback_gain)
+
+    return LQRSolution(
+        feedback_gain=feedback_gain,
+        riccati_solution=riccati_solution,
+        closed_loop_eigenvalues=closed_loop_eigenvalues,
+    )
 
 
 class LateralControlRiccati:
+    """Lateral vehicle controller using LQR with dynamic one-track model.
+
+    This controller uses a Linear Quadratic Regulator (LQR) design based on a
+    linearized dynamic one-track (bicycle) model. It includes:
+    - State feedback for lateral error, heading error, sideslip, and yaw rate
+    - Curvature feedforward compensation for steady-state cornering
+    - PT2 actuator dynamics for realistic steering response
+    - Measurement noise simulation
+    """
+
     def __init__(
         self,
-        initial_condition: np.array,
-        curve: dict,
+        initial_state: DynamicVehicleState,
+        curve: ReferenceCurve,
         vehicle_params: VehicleParameters,
         initial_velocity: float,
-        r: float,
+        control_weight: float,
     ):
-        self.vars_0 = initial_condition
-        self.vars_0.append(0.0)
-        self.vars_0.append(0.0)
-        self.curve = curve
-        self.v = initial_velocity
-        self.vehicle_params = vehicle_params
-        self.params = get_control_params(
-            vehicle_params=vehicle_params, velocity=initial_velocity, r=r
-        )
-        num = [1]
-        den = [2 * np.power(0.05, 2), 2 * 0.05, 1]
-        self.tf_ss = signal.TransferFunction(num, den).to_ss()
+        """Initialize the LQR lateral controller.
 
-    def simulate(self, t_vector, v=1, t_step=0.1):
-        self.v = v
-        state_trajectory = odeint(
-            self._f_system_dynamics, self.vars_0, t_vector, args=(t_step,)
+        Args:
+            initial_state: Initial vehicle state (position, heading, sideslip, yaw rate)
+            curve: Reference curve to follow
+            vehicle_params: Physical parameters of the vehicle
+            initial_velocity: Initial longitudinal velocity [m/s]
+            control_weight: LQR control weight (higher = less aggressive steering)
+        """
+        self.initial_simulation_state = SimulationState.from_vehicle_state(
+            initial_state, steering_angle=0.0, steering_rate=0.0
+        )
+        self.reference_curve = curve
+        self.velocity = initial_velocity
+        self.vehicle_params = vehicle_params
+        self.control_params = get_control_params(
+            vehicle_params=vehicle_params,
+            velocity=initial_velocity,
+            control_weight=control_weight,
+        )
+        # PT2 actuator dynamics (second-order low-pass filter for steering)
+        actuator_time_constant = 0.05
+        numerator = [1]
+        denominator = [
+            2 * np.power(actuator_time_constant, 2),
+            2 * actuator_time_constant,
+            1,
+        ]
+        self.actuator_state_space = signal.TransferFunction(
+            numerator, denominator
+        ).to_ss()
+
+    def simulate(
+        self,
+        time_vector: np.ndarray[Any, Any],
+        velocity: float = 1,
+        time_step: float = 0.1,
+    ) -> np.ndarray[Any, Any]:
+        """Simulate the closed-loop vehicle trajectory.
+
+        Args:
+            time_vector: Array of time points for simulation [s]
+            velocity: Constant longitudinal velocity [m/s]
+            time_step: Time step for noise generation [s]
+
+        Returns:
+            State trajectory array with shape (len(time_vector), 7).
+            Columns: [x, y, psi, beta, yaw_rate, steering_angle, steering_rate]
+        """
+        self.velocity = velocity
+        state_trajectory: np.ndarray[Any, Any] = odeint(
+            self._compute_state_derivatives,
+            self.initial_simulation_state.to_list(),
+            time_vector,
+            args=(time_step,),
         )
         return state_trajectory
 
     @staticmethod
-    def __position_noise(val, seed):
-        position_noise = 0.01
-        mu = 0
-        sigma = position_noise
+    def _add_position_noise(value: float, seed: int) -> float:
+        """Add Gaussian noise to simulate position measurement uncertainty.
 
+        Args:
+            value: True position value
+            seed: Random seed for reproducibility
+
+        Returns:
+            Noisy position value
+        """
+        position_noise_std = 0.01  # meters
         np.random.seed(seed)
-        noise = np.random.normal(mu, sigma)
-        result = val + noise
-
-        return result
+        noise = np.random.normal(0, position_noise_std)
+        return value + noise
 
     @staticmethod
-    def __orientation_noise(val, seed):
-        orientation_noise = 1.0 / 180 * math.pi
-        mu = 0
-        sigma = orientation_noise
+    def _add_orientation_noise(value: float, seed: int) -> float:
+        """Add Gaussian noise to simulate orientation measurement uncertainty.
 
+        Args:
+            value: True orientation value [rad]
+            seed: Random seed for reproducibility
+
+        Returns:
+            Noisy orientation value [rad]
+        """
+        orientation_noise_std = 1.0 / 180 * math.pi  # 1 degree in radians
         np.random.seed(seed)
-        noise = np.random.normal(mu, sigma)
-        result = val + noise
+        noise = np.random.normal(0, orientation_noise_std)
+        return value + noise
 
-        return result
+    def _compute_actuator_dynamics(
+        self,
+        steering_angle: float,
+        steering_rate: float,
+        steering_command: float,
+    ) -> ActuatorDynamicsOutput:
+        """Compute PT2 actuator dynamics for the steering system.
 
-    def __pt2_motor_dynamic(self, vars_, t, delta_in):
-        state_1, state_2 = vars_
-        state = np.matrix([state_1, state_2]).T
-        dvarsdt = np.dot(self.tf_ss.A, state) + np.dot(self.tf_ss.B, delta_in)
-        delta = np.dot(self.tf_ss.C, state) + np.dot(self.tf_ss.D, delta_in)
-        return dvarsdt[0, 0], dvarsdt[1, 0], delta[0, 0]
+        Args:
+            steering_angle: Current steering angle [rad]
+            steering_rate: Current steering rate [rad/s]
+            steering_command: Commanded steering angle [rad]
 
-    @staticmethod
-    def __delta_pt1(delta):
-        delta = delta * 18
-        return delta
+        Returns:
+            ActuatorDynamicsOutput with derivatives and actual steering angle
+        """
+        state = np.array([[steering_angle], [steering_rate]])
+        state_derivative = np.dot(self.actuator_state_space.A, state) + np.dot(
+            self.actuator_state_space.B, steering_command
+        )
+        actual_steering = np.dot(self.actuator_state_space.C, state) + np.dot(
+            self.actuator_state_space.D, steering_command
+        )
+        return ActuatorDynamicsOutput(
+            steering_angle_derivative=state_derivative[0, 0],
+            steering_rate_derivative=state_derivative[1, 0],
+            actual_steering_angle=actual_steering[0, 0],
+        )
 
-    def _f_system_dynamics(self, vars_, t, t_step):
-        x, y, psi, beta, r, delta, delta_dot = vars_
-        _, _, _, e_l, e_psi, kappa_r = pro.project2curve_with_lookahead(
-            self.curve["s"],
-            self.curve["x"],
-            self.curve["y"],
-            self.curve["theta"],
-            self.curve["kappa"],
-            self.params.l_s,
-            x,
-            y,
-            psi,
+    def _compute_state_derivatives(
+        self, state: np.ndarray[Any, Any], time: float, time_step: float
+    ) -> tuple[float, float, float, float, float, float, float]:
+        """Compute state derivatives for the closed-loop system.
+
+        Args:
+            state: Current state [x, y, psi, beta, yaw_rate, steering_angle, steering_rate]
+            time: Current simulation time [s]
+            time_step: Time step for noise generation [s]
+
+        Returns:
+            State derivatives as tuple (required by odeint)
+        """
+        current_state = SimulationState(
+            x=state[0],
+            y=state[1],
+            heading=state[2],
+            sideslip_angle=state[3],
+            yaw_rate=state[4],
+            steering_angle=state[5],
+            steering_rate=state[6],
         )
-        seed = math.floor(t / t_step)
-        e_l = self.__position_noise(e_l, seed)
-        e_psi = self.__orientation_noise(e_psi, seed)
-        delta_in = con.feedback_law(
-            self.params.k_lqr,
-            self.params.k_dist_comp,
-            e_l,
-            e_psi,
-            kappa_r,
-            beta,
-            r,
+
+        # Project vehicle position onto reference curve with look-ahead
+        projection = pro.project2curve_with_lookahead(
+            self.reference_curve.arc_length,
+            self.reference_curve.x,
+            self.reference_curve.y,
+            self.reference_curve.heading,
+            self.reference_curve.curvature,
+            self.control_params.lookahead_distance,
+            current_state.x,
+            current_state.y,
+            current_state.heading,
         )
-        state_1_dot, state_2_dot, delta = self.__pt2_motor_dynamic(
-            [delta, delta_dot], t, delta_in
+
+        # Add measurement noise (synchronized by time step)
+        noise_seed = math.floor(time / time_step)
+        lateral_error = self._add_position_noise(projection.lateral_error, noise_seed)
+        heading_error = self._add_orientation_noise(projection.heading, noise_seed)
+
+        # Compute steering command from feedback law
+        steering_command = con.feedback_law(
+            self.control_params.lqr_gain,
+            self.control_params.disturbance_compensation_gain,
+            lateral_error,
+            heading_error,
+            projection.curvature,
+            current_state.sideslip_angle,
+            current_state.yaw_rate,
         )
-        v = self.v  # const velocity
-        vars_dot = dotm.DynamicOneTrackModel(self.vehicle_params).system_dynamics(
-            vars_[:5], t, v, delta
+
+        # Apply actuator dynamics
+        actuator_output = self._compute_actuator_dynamics(
+            current_state.steering_angle,
+            current_state.steering_rate,
+            steering_command,
         )
-        return (
-            vars_dot[0],
-            vars_dot[1],
-            vars_dot[2],
-            vars_dot[3],
-            vars_dot[4],
-            state_1_dot,
-            state_2_dot,
+
+        # Compute vehicle dynamics (vehicle model is not fully typed yet)
+        vehicle_state = state[:5]
+        vehicle_derivatives = dotm.DynamicOneTrackModel(  # type: ignore[no-untyped-call]
+            self.vehicle_params
+        ).system_dynamics(
+            vehicle_state, time, self.velocity, actuator_output.actual_steering_angle
         )
+
+        derivatives = StateDerivatives(
+            x_dot=vehicle_derivatives[0],
+            y_dot=vehicle_derivatives[1],
+            heading_dot=vehicle_derivatives[2],
+            sideslip_angle_dot=vehicle_derivatives[3],
+            yaw_rate_dot=vehicle_derivatives[4],
+            steering_angle_dot=actuator_output.steering_angle_derivative,
+            steering_rate_dot=actuator_output.steering_rate_derivative,
+        )
+        return derivatives.to_tuple()
